@@ -1,0 +1,127 @@
+{
+   "apis_live" : false,
+   "backend" : "DBI::mysql",
+   "batch_size" : 5,
+   "candidate_limit" : 50,
+   "jev_input_tokens" : 0,
+   "jev_model" : "jev-latest",
+   "metrics" : {
+      "candidate_fields" : {
+         "calls" : 50,
+         "exclusive_seconds" : 0.00232850498287007,
+         "inclusive_seconds" : 0.00232850498287007
+      },
+      "candidate_selection_total" : {
+         "calls" : 1,
+         "exclusive_seconds" : 0.0188327646465041,
+         "inclusive_seconds" : 1.60218825098127
+      },
+      "document_preparation" : {
+         "calls" : 1000,
+         "exclusive_seconds" : 0.0937599008902907,
+         "inclusive_seconds" : 0.0937599008902907
+      },
+      "embedding_db_load" : {
+         "calls" : 10,
+         "exclusive_seconds" : 0.0367015821393579,
+         "inclusive_seconds" : 0.0367015821393579
+      },
+      "entry_db_iteration" : {
+         "calls" : 1001,
+         "exclusive_seconds" : 0.0969077962799929,
+         "inclusive_seconds" : 0.0969077962799929
+      },
+      "jev" : {
+         "calls" : 1,
+         "exclusive_seconds" : 0.0120984580134973,
+         "inclusive_seconds" : 0.0120984580134973
+      },
+      "openai" : {
+         "calls" : 1,
+         "exclusive_seconds" : 1.35420123115182e-05,
+         "inclusive_seconds" : 1.35420123115182e-05
+      },
+      "vector_decode" : {
+         "calls" : 1000,
+         "exclusive_seconds" : 0.0519815860316157,
+         "inclusive_seconds" : 1.25271681993036
+      },
+      "vector_dot_product" : {
+         "calls" : 1000,
+         "exclusive_seconds" : 0.088323840056546,
+         "inclusive_seconds" : 0.088323840056546
+      },
+      "vector_validation_normalization" : {
+         "calls" : 1001,
+         "exclusive_seconds" : 1.20124027592828,
+         "inclusive_seconds" : 1.20124027592828
+      }
+   },
+   "openai_usage" : null,
+   "query" : "国産クラウドへのサイト移行で実際に困ったことがあり、料金や費用には一切言及していない記事",
+   "rendering_seconds" : 0.206512666016351,
+   "requests" : [
+      {
+         "documents" : 5,
+         "pid" : 2377,
+         "seconds" : 6.20802165940404e-06,
+         "start" : 1.62671112600947
+      },
+      {
+         "documents" : 5,
+         "pid" : 2378,
+         "seconds" : 5.50004187971354e-06,
+         "start" : 1.62705525098136
+      },
+      {
+         "documents" : 5,
+         "pid" : 2377,
+         "seconds" : 1.50001142174006e-06,
+         "start" : 1.62812620901968
+      },
+      {
+         "documents" : 5,
+         "pid" : 2378,
+         "seconds" : 1.33301364257932e-06,
+         "start" : 1.62837854301324
+      },
+      {
+         "documents" : 5,
+         "pid" : 2377,
+         "seconds" : 1.45798549056053e-06,
+         "start" : 1.62936587602599
+      },
+      {
+         "documents" : 5,
+         "pid" : 2378,
+         "seconds" : 1.58400507643819e-06,
+         "start" : 1.62963895901339
+      },
+      {
+         "documents" : 5,
+         "pid" : 2377,
+         "seconds" : 1.3329554349184e-06,
+         "start" : 1.63057437603129
+      },
+      {
+         "documents" : 5,
+         "pid" : 2378,
+         "seconds" : 1.41601776704192e-06,
+         "start" : 1.63089441799093
+      },
+      {
+         "documents" : 5,
+         "pid" : 2377,
+         "seconds" : 1.33301364257932e-06,
+         "start" : 1.63176191801904
+      },
+      {
+         "documents" : 5,
+         "pid" : 2378,
+         "seconds" : 1.29203544929624e-06,
+         "start" : 1.63205383397872
+      }
+   ],
+   "site_id" : 9,
+   "total_seconds" : 1.95686129300157
+}

@@ -1,0 +1,19 @@
+.mt-search-form.jev-header-search .search-text-box {
+  flex-direction: column;
+}
+
+.jev-header-search .jev-header-option {
+  display: flex;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.jev-header-search .jev-header-option input[type="checkbox"] {
+  flex: 0 0 auto;
+  width: auto;
+  margin: 0 0.4em 0 0;
+}
+
+.mt-search-form.jev-header-search .submit-button {
+  align-self: flex-start;
+}

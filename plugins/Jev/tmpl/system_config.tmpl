@@ -1,0 +1,56 @@
+<__trans_section component="Jev">
+<mtapp:setting id="jev_evaluator" label="<__trans phrase="Evaluation provider">" hint="<__trans phrase="Select the API for matching and relevance scoring. Embeddings always use OpenAI.">" show_hint="1">
+  <select id="jev_evaluator" name="jev_evaluator" class="form-control form-select">
+    <option value="jev"<mt:if name="jev_evaluator" eq="jev"> selected</mt:if>>Jev (TypeSafe)</option>
+    <option value="openai"<mt:if name="jev_evaluator" eq="openai"> selected</mt:if>>OpenAI</option>
+  </select>
+</mtapp:setting>
+<mtapp:setting id="jev_api_key" label="<__trans phrase="TypeSafe API key">">
+  <mt:if name="jev_has_api_key">
+  <div class="form-static" id="jev-saved-key">
+    <mt:var name="jev_masked_api_key" escape="html">
+    <button type="button" class="btn btn-link" id="jev-update-key"><__trans phrase="Update API key"></button>
+  </div>
+  </mt:if>
+  <input type="password" id="jev_api_key" name="jev_api_key" class="form-control" autocomplete="new-password"<mt:if name="jev_has_api_key"> hidden disabled</mt:if>>
+</mtapp:setting>
+<mtapp:setting id="openai_api_key" label="<__trans phrase="OpenAI API key">">
+  <mt:if name="openai_has_api_key">
+  <div class="form-static" id="openai-saved-key">
+    <mt:var name="openai_masked_api_key" escape="html">
+    <button type="button" class="btn btn-link" id="openai-update-key"><__trans phrase="Update API key"></button>
+  </div>
+  </mt:if>
+  <input type="password" id="openai_api_key" name="openai_api_key" class="form-control" autocomplete="new-password"<mt:if name="openai_has_api_key"> hidden disabled</mt:if>>
+</mtapp:setting>
+<mtapp:setting id="jev_model" label="<__trans phrase="Jev model">">
+  <input type="text" id="jev_model" name="jev_model" class="form-control" value="<mt:var name="jev_model" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="openai_evaluation_model" label="<__trans phrase="OpenAI evaluation model">" hint="<__trans phrase="Used when OpenAI is selected. Requires Responses API and Structured Outputs support. Uses the OpenAI API key above.">" show_hint="1">
+  <input type="text" id="openai_evaluation_model" name="openai_evaluation_model" class="form-control" value="<mt:var name="openai_evaluation_model" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="jev_candidate_limit" label="<__trans phrase="Candidate limit">" hint="<__trans phrase="Use an integer from 1 to 500.">" show_hint="1">
+  <input type="number" id="jev_candidate_limit" name="jev_candidate_limit" class="form-control" min="1" max="500" step="1" value="<mt:var name="jev_candidate_limit" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="jev_threshold" label="<__trans phrase="Match threshold">" hint="<__trans phrase="Use a number from 0 to 1.">" show_hint="1">
+  <input type="number" id="jev_threshold" name="jev_threshold" class="form-control" min="0" max="1" step="any" value="<mt:var name="jev_threshold" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="jev_batch_size" label="<__trans phrase="Candidates per request">" hint="<__trans phrase="Use an integer from 1 to 50. Large inputs are sent in smaller groups.">" show_hint="1">
+  <input type="number" id="jev_batch_size" name="jev_batch_size" class="form-control" min="1" max="50" step="1" value="<mt:var name="jev_batch_size" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="jev_concurrency" label="<__trans phrase="Concurrent evaluation requests">" hint="<__trans phrase="Maximum concurrent requests per search (1 to 10). Use 1 for sequential requests.">" show_hint="1">
+  <input type="number" id="jev_concurrency" name="jev_concurrency" class="form-control" min="1" max="10" step="1" value="<mt:var name="jev_concurrency" escape="html">" required>
+</mtapp:setting>
+<mtapp:setting id="jev_header_default" label="<__trans phrase="Use natural-language search by default in header search">" hint="<__trans phrase="Sets the initial checkbox state in the global header search.">" show_hint="1">
+  <select id="jev_header_default" name="jev_header_default" class="form-control form-select">
+    <option value="1"<mt:if name="jev_header_default"> selected</mt:if>>ON</option>
+    <option value="0"<mt:unless name="jev_header_default"> selected</mt:unless>>OFF</option>
+  </select>
+</mtapp:setting>
+<mtapp:setting id="jev_index_help" label="<__trans phrase="Search index">">
+  <p><__trans phrase="After saving the OpenAI key, run the following command from the MT directory. Content is sent to OpenAI and API usage is billed."></p>
+  <pre>perl tools/Jev/build-index</pre>
+  <p><__trans phrase="New and edited documents are indexed synchronously. Documents without a current index are omitted from natural-language search."></p>
+</mtapp:setting>
+<script src="<mt:var name="static_uri" escape="html">plugins/Jev/system_config.js" defer></script>
+</__trans_section>

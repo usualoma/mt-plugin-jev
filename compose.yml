@@ -1,0 +1,20 @@
+services:
+  builder:
+    build:
+      context: .
+      args:
+        NODE: "22"
+    volumes:
+      - .:/app
+    working_dir: /app
+    user: "${JEV_BUILD_UID:-1000}:${JEV_BUILD_GID:-1000}"
+    command:
+      - /bin/bash
+      - -c
+      - |
+        set -euo pipefail
+        rm -f MANIFEST
+        perl Makefile.PL
+        make manifest
+        make dist
+        make zipdist

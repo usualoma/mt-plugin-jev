@@ -1,0 +1,20 @@
+<mt:if name="jev_supported">
+<__trans_section component="Jev">
+<li class="list-inline-item">
+  <div class="form-check">
+    <input type="checkbox" id="is_jev" name="is_jev" value="1"<mt:if name="is_jev"> checked="checked"</mt:if> class="form-check-input cb" aria-describedby="jev-search-hint">
+    <label class="form-check-label" for="is_jev"><__trans phrase="Search with natural language"></label>
+  </div>
+</li>
+<mt:setvarblock name="js_include" append="1">
+<script src="<mt:var name="static_uri" escape="html">plugins/Jev/search.js" defer></script>
+</mt:setvarblock>
+<li id="jev-search-hint" class="small mt-2"<mt:unless name="is_jev"> hidden</mt:unless>>
+  <mt:if name="jev_evaluator" eq="openai">
+  <__trans phrase="Evaluates the [_1] most similar indexed documents. Search conditions and candidate content are sent to OpenAI." params="<mt:var name="jev_candidate_limit" escape="html">">
+  <mt:else>
+  <__trans phrase="Evaluates the [_1] most similar indexed documents. Search conditions are sent to OpenAI; candidate content is sent to TypeSafe." params="<mt:var name="jev_candidate_limit" escape="html">">
+  </mt:if>
+</li>
+</__trans_section>
+</mt:if>

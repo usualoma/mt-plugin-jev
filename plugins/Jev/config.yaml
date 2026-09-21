@@ -1,0 +1,125 @@
+id: Jev
+key: Jev
+name: Jev
+version: 0.2.0
+schema_version: 0.01
+object_types:
+  jev_embedding: MT::Plugin::Jev::Embedding
+description: <__trans phrase="Search entries, pages and content data using natural-language conditions with Jev or OpenAI.">
+
+settings:
+  jev_evaluator:
+    default: jev
+    scope: system
+  openai_evaluation_model:
+    default: gpt-5.4-mini
+    scope: system
+  openai_api_key:
+    default: ''
+    scope: system
+  jev_candidate_limit:
+    default: 50
+    scope: system
+  jev_api_key:
+    default: ''
+    scope: system
+  jev_model:
+    default: jev-latest
+    scope: system
+  jev_threshold:
+    default: 0.5
+    scope: system
+  jev_batch_size:
+    default: 5
+    scope: system
+  jev_concurrency:
+    default: 5
+    scope: system
+  jev_header_default:
+    default: 1
+    scope: system
+
+system_config_template:
+  code: $Jev::MT::Plugin::Jev::Callbacks::system_config_template
+
+callbacks:
+  MT::Entry::post_save: $Jev::MT::Plugin::Jev::Callbacks::post_save
+  MT::Page::post_save: $Jev::MT::Plugin::Jev::Callbacks::post_save
+  MT::ContentData::post_save: $Jev::MT::Plugin::Jev::Callbacks::post_save
+  MT::Entry::post_remove: $Jev::MT::Plugin::Jev::Callbacks::post_remove
+  MT::Page::post_remove: $Jev::MT::Plugin::Jev::Callbacks::post_remove
+  MT::ContentData::post_remove: $Jev::MT::Plugin::Jev::Callbacks::post_remove
+  MT::App::CMS::init_app: $Jev::MT::Plugin::Jev::CMS::init_app
+  MT::App::CMS::template_param.header: $Jev::MT::Plugin::Jev::Callbacks::template_param_header
+  MT::App::CMS::template_source.search_replace: $Jev::MT::Plugin::Jev::Callbacks::template_source_search_replace
+  MT::App::CMS::template_param.search_replace: $Jev::MT::Plugin::Jev::Callbacks::template_param_search_replace
+  save_config_filter.Jev: $Jev::MT::Plugin::Jev::Callbacks::save_config_filter
+
+l10n_lexicon:
+  ja:
+    'Search entries, pages and content data using natural-language conditions with Jev or OpenAI.': 'JevまたはOpenAIを使い、自然文の条件で記事・ウェブページ・コンテンツデータを検索します。'
+    'Evaluation provider': '条件判定・関連度採点に使うAPI'
+    'Select the API for matching and relevance scoring. Embeddings always use OpenAI.': '候補の条件判定と関連度採点に使うAPIを選びます。embeddingの生成には常にOpenAIを使います。'
+    'Select Jev or OpenAI as the evaluation provider.': '評価に使うAPIはJevまたはOpenAIを選んでください。'
+    'Jev model': 'Jevのモデル'
+    'OpenAI evaluation model': 'OpenAIの評価用モデル'
+    'Used when OpenAI is selected. Requires Responses API and Structured Outputs support. Uses the OpenAI API key above.': 'OpenAIを選択した場合に使用します。Responses APIとStructured Outputsに対応するモデルを指定してください。上のOpenAI APIキーを共用します。'
+    'Enter a valid OpenAI evaluation model name.': '有効なOpenAIの評価用モデル名を入力してください。'
+    'Concurrent evaluation requests': '評価の並列数'
+    'The evaluation concurrency must be an integer from 1 to 10.': '評価の並列数は1以上10以下の整数にしてください。'
+    'Evaluates the [_1] most similar indexed documents. Search conditions and candidate content are sent to OpenAI.': '生成済みの検索用データから、意味の近い上位[_1]件を評価します。検索条件と候補の内容はOpenAIに送信されます。'
+    '[_1] could not be reached. The search did not complete.': '[_1]に接続できませんでした。検索は完了していません。'
+    '[_1] returned HTTP [_2]. The search did not complete.': '[_1]がHTTP [_2]を返しました。検索は完了していません。'
+    '[_1] returned an invalid or incomplete answer. The search did not complete.': '[_1]の回答が不正または不足しています。検索は完了していません。'
+    'The search condition and content [_1] exceed the [_2] input size limit.': '検索条件とコンテンツ[_1]が[_2]の入力サイズ制限を超えています。'
+    'OpenAI API key': 'OpenAI APIキー'
+    'Enter a valid OpenAI API key.': '有効な OpenAI APIキーを入力してください。'
+    'Search with natural language': '自然言語で検索'
+    'Use natural-language search by default in header search': 'ヘッダー検索で自然言語検索を標準で使用'
+    'Candidate limit': '評価する候補数'
+    'Use an integer from 1 to 500.': '1以上500以下の整数を指定してください。'
+    'The candidate limit must be an integer from 1 to 500.': '候補数は1以上500以下の整数にしてください。'
+    'Evaluates the [_1] most similar indexed documents. Search conditions are sent to OpenAI; candidate content is sent to TypeSafe.': '生成済みの検索用データから、意味の近い上位[_1]件を評価します。検索条件はOpenAI、候補の内容はTypeSafeに送信されます。'
+    'Search index': '検索用データ'
+    'After saving the OpenAI key, run the following command from the MT directory. Content is sent to OpenAI and API usage is billed.': 'OpenAIキーを保存後、MTのディレクトリで以下のコマンドを実行してください。コンテンツをOpenAIに送信し、API利用料が発生します。'
+    'New and edited documents are indexed synchronously. Documents without a current index are omitted from natural-language search.': '新規作成・編集時には同期で更新します。検索用データが未生成または古い文書は自然言語検索に含まれません。'
+    'Configure an OpenAI API key in the Jev plugin settings.': 'Jevのプラグイン設定でOpenAI APIキーを設定してください。'
+    'Generate the search index with tools/Jev/build-index before searching.': '検索する前に tools/Jev/build-index で検索用データを生成してください。'
+    'Natural-language search timed out.': '自然言語検索の制限時間を超えました。'
+    'OpenAI could not be reached.': 'OpenAIに接続できませんでした。'
+    'OpenAI returned HTTP [_1].': 'OpenAIがHTTP [_1]を返しました。'
+    'OpenAI returned an invalid embedding.': 'OpenAIのembeddingの応答が不正です。'
+    'Invalid stored embedding. Rebuild the search index.': '保存されたembeddingが不正です。検索用データを再生成してください。'
+    'Enter text to generate an embedding.': 'embeddingを生成するテキストを入力してください。'
+    'The search condition and content [_1] exceed the Jev input size limit.': '検索条件とコンテンツ[_1]がJevの入力サイズ制限を超えています。'
+    'Search entries, pages and content data using natural-language conditions with Jev.': 'Jev を使い、自然文の条件で記事・ウェブページ・コンテンツデータを検索します。'
+    'TypeSafe API key': 'TypeSafe APIキー'
+    'Update API key': 'APIキーを更新'
+    'Model': 'モデル'
+    'Match threshold': '一致と判定するしきい値'
+    'Candidates per request': '1回に判定する件数'
+    'Concurrent Jev requests': 'Jevの並列数'
+    'Maximum concurrent requests per search (1 to 10). Use 1 for sequential requests.': '検索1回あたりの同時リクエスト数です（1〜10）。1にすると逐次実行します。'
+    'The Jev concurrency must be an integer from 1 to 10.': 'Jevの並列数は1以上10以下の整数にしてください。'
+    'Use Jev': 'Jev を使う'
+    'Use Jev by default in header search': 'ヘッダー検索で Jev を標準で使用'
+    'Sets the initial checkbox state in the global header search.': 'グローバルヘッダーの検索フォームで、チェックボックスの初期状態を指定します。'
+    'The Jev header search default must be 0 or 1.': 'ヘッダー検索の Jev の初期状態は ON または OFF を指定してください。'
+    'Use a number from 0 to 1.': '0以上1以下の数値を指定してください。'
+    'Use an integer from 1 to 50. Large inputs are sent in smaller groups.': '1以上50以下の整数を指定してください。入力が大きい場合はさらに分割します。'
+    'Jev evaluates the selected fields using your search condition. Content is sent to TypeSafe.': '検索条件に従って、選択した項目の内容を Jev が判定します。内容は TypeSafe に送信されます。'
+    'Enter a natural-language search condition.': '自然文の検索条件を入力してください。'
+    'Configure a TypeSafe API key in the Jev plugin settings.': 'Jev のプラグイン設定で TypeSafe APIキーを設定してください。'
+    'Jev supports entries, pages and content data.': 'Jev の検索対象は記事・ウェブページ・コンテンツデータです。'
+    'Replacement is unavailable while Jev is enabled.': 'Jev が有効な場合は置換できません。'
+    'Select at least one searchable field for this content type.': 'この検索対象で検索できる項目を1つ以上選択してください。'
+    'The Jev match threshold must be a number from 0 to 1.': 'Jev のしきい値は0以上1以下の数値にしてください。'
+    'The Jev batch size must be an integer from 1 to 50.': 'Jev の判定件数は1以上50以下の整数にしてください。'
+    'Enter a valid Jev model name.': '有効な Jev モデル名を入力してください。'
+    'Enter a valid TypeSafe API key.': '有効な TypeSafe APIキーを入力してください。'
+    'Jev search timed out before it completed. Narrow the date range or search scope and try again.': 'Jev 検索は完了する前に制限時間を超えました。日付範囲や検索対象を絞って再実行してください。'
+    'The search condition and content [_1] are too large for Jev. Select fewer fields.': '検索条件とコンテンツ [_1] のサイズが大きすぎます。検索する項目を減らしてください。'
+    'Jev could not be reached. The search did not complete.': 'Jev に接続できませんでした。検索は完了していません。'
+    'Jev returned HTTP [_1]. The search did not complete.': 'Jev が HTTP [_1] を返しました。検索は完了していません。'
+    'Jev returned an invalid or incomplete answer. The search did not complete.': 'Jev の回答が不正または不足しています。検索は完了していません。'
+    'This version of the MT search screen is not supported by Jev.': 'このバージョンのMT検索画面には Jev が対応していません。'

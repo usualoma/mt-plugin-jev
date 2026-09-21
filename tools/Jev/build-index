@@ -1,0 +1,47 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use FindBin;
+BEGIN { $ENV{MT_HOME} ||= "$FindBin::Bin/../.." }
+use lib "$ENV{MT_HOME}/lib", "$ENV{MT_HOME}/extlib";
+use Getopt::Long qw(GetOptions);
+use MT::Bootstrap;
+use MT;
+
+my ($blog_id, $type, $force, $help);
+GetOptions('blog-id=i' => \$blog_id, 'type=s' => \$type, 'force' => \$force, 'help' => \$help)
+    or die "Invalid options. Use --help.\n";
+if ($help) {
+    print "Usage: perl tools/Jev/build-index [--blog-id ID] [--type entry|page|content_data] [--force]\n";
+    exit 0;
+}
+die "Invalid blog ID.\n" if defined $blog_id && $blog_id < 1;
+die "Invalid type.\n" if defined $type && $type !~ /\A(?:entry|page|content_data)\z/;
+die "Unexpected arguments.\n" if @ARGV;
+my $mt = MT->new or die MT->errstr;
+my $plugin = MT->component('Jev') or die "Enable the Jev plugin first.\n";
+die "Run the MT database upgrade first.\n" if $plugin->needs_upgrade;
+die "Configure an OpenAI API key in the Jev plugin settings.\n"
+    unless $plugin->get_config_value('openai_api_key', 'system');
+die "Site not found.\n" if $blog_id && !$mt->model('blog')->load($blog_id);
+require MT::Plugin::Jev::Embedding;
+$| = 1;
+for my $kind ($type ? ($type) : qw(entry page content_data)) {
+    my $model = MT->model($kind);
+    my %terms = ($blog_id ? (blog_id => $blog_id) : (),
+        $kind ne 'content_data' ? (class => $kind) : ());
+    my $last_id = 0;
+    while (my @objects = $model->load({%terms, id => {op => '>', value => $last_id}},
+        {sort => 'id', direction => 'ascend', limit => 100})) {
+        for my $object (@objects) {
+            my $result = eval { MT::Plugin::Jev::Embedding->refresh($object, force => $force) };
+            if (my $error = $@) {
+                my $message = ref($error) && $error->isa('MT::Plugin::Jev::Error') ? $error->message : 'Index generation failed.';
+                print STDERR "$kind " . $object->id . ": $message\n";
+                exit 1;
+            }
+            print "$kind " . $object->id . ": $result\n";
+            $last_id = $object->id;
+        }
+    }
+}
