@@ -13,7 +13,9 @@ BEGIN {
     require MT::Test::Env;
     $env = MT::Test::Env->new(
         PluginPath => ["$root/plugins"],
-        PluginSwitch => ['Jev=1'],
+        # MT::Test::Env also searches MT_HOME/plugins. Use the checkout's
+        # explicit PluginPath instead of loading an installed copy twice.
+        PluginSwitch => ['Jev=1', "$mt/plugins/Jev=0"],
         DefaultLanguage => 'en_US',
         AdminThemeId => $ENV{MT_TEST_ADMIN_THEME_ID} || 'admin2025',
     );

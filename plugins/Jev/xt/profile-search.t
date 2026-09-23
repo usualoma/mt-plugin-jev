@@ -45,12 +45,16 @@ $jev->redefine(_request => sub {
     return {map { $_ => {noul => 0.9, score => 3} } @$ids};
 });
 my $plugin = MT->component('Jev');
+my $concurrency = 5;
 $plugin->set_config_value({openai_api_key => 'profile-fake', jev_api_key => 'profile-fake',
+    jev_evaluator => 'jev', jev_concurrency => $concurrency,
     jev_model => 'jev-latest', jev_threshold => 0.5, jev_candidate_limit => 50, jev_batch_size => 5}, 'system');
 
 my $count = $ENV{JEV_PROFILE_COUNT} || 1000;
 die 'Invalid count' unless $count =~ /\A[1-9][0-9]*\z/ && $count <= 10000;
-open my $input, '<:encoding(UTF-8)', "$FindBin::Bin/../../../specs/demo-data/jev-demo-1000.txt" or die $!;
+my $dataset = $ENV{JEV_PROFILE_DATASET}
+    || "$FindBin::Bin/../../../specs/demo-data/jev-demo-1000.txt";
+open my $input, '<:encoding(UTF-8)', $dataset or die "Cannot open profile dataset $dataset: $!";
 my $text = do { local $/; <$input> };
 my @documents = map {
     my ($title) = /^TITLE: (.+)$/m;
@@ -142,7 +146,7 @@ if (my $path = $ENV{JEV_PROFILE_OUTPUT}) {
     open my $output, '>', $path or die $!;
     print {$output} JSON::PP->new->canonical->pretty->encode({
         documents => 0 + $count, dimensions => 3072, candidate_limit => 50, batch_size => 5,
-        concurrency => 2, apis_mocked => JSON::PP::true,
+        concurrency => $concurrency, apis_mocked => JSON::PP::true,
         backend => $ENV{MT_TEST_BACKEND} || 'SQLite', runs => \@runs,
     });
     close $output or die $!;
