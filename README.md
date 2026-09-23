@@ -56,6 +56,21 @@ make zipdist
 
 To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.0-dev`; this does not change the version displayed by the plugin.
 
+## CI and GitHub Releases
+
+The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.0-abc1234`.
+
+Like AI-Assistant, tag builds use [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to create a **draft GitHub Release** with both archives attached. The tag must match `version` in `plugins/Jev/config.yaml`, prefixed with `v`; a mismatch fails the build. Tagged builds keep the configured plugin version unchanged. Only the release job receives `contents: write` permission, using the automatically provided GitHub token.
+
+To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.0`:
+
+```sh
+git tag v0.2.0
+git push origin v0.2.0
+```
+
+Once the workflow succeeds, review and publish the draft on GitHub's Releases page.
+
 ## Usage
 
 On the Search & Replace screen, enter conditions such as "Explains the installation procedure but does not mention pricing" and enable **Search with natural language**. Standard search scope restrictions, including site and child sites, date range, and publication status, still apply.
