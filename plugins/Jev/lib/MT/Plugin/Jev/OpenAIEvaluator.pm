@@ -9,6 +9,9 @@ sub provider { 'OpenAI' }
 sub endpoint { 'https://api.openai.com/v1/responses' }
 sub request_timeout { 60 }
 sub search_timeout { 180 }
+# OpenAI enforces the configured model's token limit. Jev's local byte limit
+# does not apply; full fields are needed to evaluate negations and absences.
+sub max_pair_bytes { undef }
 sub retryable_status { $_[1] == 429 || $_[1] >= 500 && $_[1] <= 599 }
 
 sub _payload {

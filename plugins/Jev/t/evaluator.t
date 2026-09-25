@@ -143,9 +143,6 @@ subtest 'size splitting and forked batches reuse the existing executor' => sub {
     is_deeply $client->token_usage, {requests => 2, input_tokens => 246, output_tokens => 90,
         cached_input_tokens => 128, total_tokens => 336}, 'usage follows actual size-split requests';
     ($client, $ua) = client(\&reply_to_request);
-    like ''.caught(sub { $client->evaluate_batch(condition => 'query', candidates => [candidate('entry_1', '字' x 10000)]) }),
-        qr/size limit/, 'oversized document rejected';
-    is scalar @{$ua->{requests}}, 0, 'no truncated content sent';
     my @batches = map { [candidate("entry_$_")] } 1..10;
     $scores = $client->evaluate_batches(condition => 'query', batches => \@batches);
     is_deeply $scores, {map { ("entry_$_" => {noul => 0.9, score => 3}) } 1..10}, 'all forked OpenAI answers collected';
@@ -153,6 +150,41 @@ subtest 'size splitting and forked batches reuse the existing executor' => sub {
     is_deeply $client->token_usage, {requests => 10, input_tokens => 1230, output_tokens => 450,
         cached_input_tokens => 640, total_tokens => 1680}, 'all usage fields collected from forked workers';
     is scalar @{$ua->{requests}}, 0, 'requests executed in child processes';
+};
+
+subtest 'OpenAI receives full long documents beyond the Jev byte budgets' => sub {
+    my ($client, $ua) = client(\&reply_to_request);
+    my $text = ('長い本文。' x 2000) . '末尾には料金の記載があります。';
+    my $condition = '料金に言及していない記事';
+    my $scores = $client->evaluate_batch(condition => $condition,
+        candidates => [candidate('entry_3781', $text)]);
+    is scalar @{$ua->{requests}}, 1, 'over 24 KB document reaches OpenAI';
+    ok exists $scores->{entry_3781}, 'answer retained';
+    cmp_ok length($ua->{requests}[0]->content), '>', MT::Plugin::Jev::Client::MAX_PAIR_BYTES,
+        'regression fixture exceeds the old single-document limit';
+    my $input = JSON::PP->new->decode($json->decode($ua->{requests}[0]->content)->{input});
+    is $input->{documents}{entry_3781}[0]{value}, $text, 'entire document including final mention sent';
+    is $input->{search_condition}, $condition, 'search condition unchanged';
+
+    ($client, $ua) = client(\&reply_to_request);
+    my $long = ('さらに長い本文。' x 3000) . '末尾にも料金の記載があります。';
+    $scores = $client->evaluate_batch(condition => $condition,
+        candidates => [candidate('entry_before'), candidate('entry_long', $long), candidate('entry_after')]);
+    is scalar @{$ua->{requests}}, 3, 'document over 48 KB is isolated from both neighboring documents';
+    is scalar keys %$scores, 3, 'no candidates dropped';
+    cmp_ok length($ua->{requests}[1]->content), '>', MT::Plugin::Jev::Client::MAX_REQUEST_BYTES,
+        'single full document may exceed the batching target';
+    $input = JSON::PP->new->decode($json->decode($ua->{requests}[1]->content)->{input});
+    is_deeply [keys %{$input->{documents}}], ['entry_long'], 'large request contains only one document';
+    is $input->{documents}{entry_long}[0]{value}, $long, 'full tail preserved in standalone request';
+    is_deeply $client->token_usage, {requests => 3, input_tokens => 369, output_tokens => 135,
+        cached_input_tokens => 192, total_tokens => 504}, 'usage includes every standalone request';
+
+    ($client, $ua) = client(HTTP::Response->new(400, 'Bad Request', [], 'private upstream context error'));
+    my $error = caught(sub { $client->evaluate_batch(condition => $condition,
+        candidates => [candidate('entry_long', $long)]) });
+    is_deeply $error->{params}, ['OpenAI', 400], 'actual API context failures still propagate';
+    is scalar @{$ua->{requests}}, 1, 'rejected evaluation is not silently shortened or retried';
 };
 
 subtest 'OpenAI retry policy and longer deadline remain bounded' => sub {

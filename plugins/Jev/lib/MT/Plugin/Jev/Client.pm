@@ -15,7 +15,7 @@ use constant ENDPOINT => 'https://api.typesafe.ai/v1/systemone';
 use constant REQUEST_TIMEOUT => 10;
 use constant SEARCH_TIMEOUT => 45;
 use constant DEFAULT_CONCURRENCY => 5;
-# Conservative UTF-8 JSON byte budgets, including instructions and condition.
+# Conservative Jev JSON byte budgets, including instructions and condition.
 use constant MAX_PAIR_BYTES => 24000;
 use constant MAX_REQUEST_BYTES => 48000;
 
@@ -23,6 +23,7 @@ sub provider { 'Jev' }
 sub endpoint { ENDPOINT }
 sub request_timeout { REQUEST_TIMEOUT }
 sub search_timeout { SEARCH_TIMEOUT }
+sub max_pair_bytes { MAX_PAIR_BYTES }
 sub retryable_status { $_[1] == 429 || $_[1] == 529 }
 sub invalid_answer {
     MT::Plugin::Jev::fail('[_1] returned an invalid or incomplete answer. The search did not complete.', $_[0]->provider);
@@ -206,6 +207,7 @@ sub _worker {
 sub evaluate_batch {
     my ($self, %args) = @_;
     my $deadline = $args{deadline} || time + $self->search_timeout;
+    my $max_pair_bytes = $self->max_pair_bytes;
     my (%answers, %documents);
     my $flush = sub {
         return unless %documents;
@@ -221,7 +223,9 @@ sub evaluate_batch {
         my $id = $candidate->{id};
         my $document = $candidate->{fields};
         MT::Plugin::Jev::fail('The search condition and content [_1] exceed the [_2] input size limit.', $id, $self->provider)
-            if length($self->_payload($args{condition}, { $id => $document })) > MAX_PAIR_BYTES;
+            if defined $max_pair_bytes
+            && length($self->_payload($args{condition}, { $id => $document })) > $max_pair_bytes;
+        # Keep large OpenAI documents in their own request, without truncation.
         $flush->() if %documents
             && length($self->_payload($args{condition}, { %documents, $id => $document })) > MAX_REQUEST_BYTES;
         $documents{$id} = $document;
