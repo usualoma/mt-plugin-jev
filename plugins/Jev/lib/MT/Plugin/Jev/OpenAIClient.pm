@@ -12,6 +12,7 @@ use constant ENDPOINT => 'https://api.openai.com/v1/embeddings';
 use constant MODEL => 'text-embedding-3-large';
 use constant DIMENSIONS => 3072;
 use constant REQUEST_TIMEOUT => 10;
+use constant MAX_SHORTEN_RETRIES => 3;
 
 sub new {
     my ($class, %args) = @_;
@@ -30,20 +31,38 @@ sub embed {
     my ($self, $text, %args) = @_;
     MT::Plugin::Jev::fail('Enter text to generate an embedding.') unless defined $text && $text =~ /\S/;
     my $deadline = $args{deadline} // time + REQUEST_TIMEOUT;
-    MT::Plugin::Jev::fail('Natural-language search timed out.') if time >= $deadline;
-    my $remaining = $deadline - time;
-    $self->{ua}->timeout($remaining < REQUEST_TIMEOUT ? $remaining : REQUEST_TIMEOUT);
     my $json = JSON::PP->new->utf8;
-    my $request = HTTP::Request->new('POST', ENDPOINT);
-    $request->header('Authorization' => 'Bearer ' . $self->{api_key});
-    $request->header('Content-Type' => 'application/json');
-    $request->content($json->encode({model => MODEL, dimensions => DIMENSIONS,
-        encoding_format => 'float', input => $text}));
-    my $response = eval { $self->{ua}->request($request) };
-    MT::Plugin::Jev::fail('Natural-language search timed out.') if time >= $deadline;
-    MT::Plugin::Jev::fail('OpenAI could not be reached.') unless $response;
-    MT::Plugin::Jev::fail('OpenAI returned HTTP [_1].', $response->code) unless $response->is_success;
-    my $data = eval { $json->decode($response->content) };
+    my $data;
+    for my $attempt (0 .. MAX_SHORTEN_RETRIES) {
+        MT::Plugin::Jev::fail('Natural-language search timed out.') if time >= $deadline;
+        my $remaining = $deadline - time;
+        $self->{ua}->timeout($remaining < REQUEST_TIMEOUT ? $remaining : REQUEST_TIMEOUT);
+        my $request = HTTP::Request->new('POST', ENDPOINT);
+        $request->header('Authorization' => 'Bearer ' . $self->{api_key});
+        $request->header('Content-Type' => 'application/json');
+        $request->content($json->encode({model => MODEL, dimensions => DIMENSIONS,
+            encoding_format => 'float', input => $text}));
+        my $response = eval { $self->{ua}->request($request) };
+        MT::Plugin::Jev::fail('Natural-language search timed out.') if time >= $deadline;
+        MT::Plugin::Jev::fail('OpenAI could not be reached.') unless $response;
+        $data = eval { $json->decode($response->content) };
+        last if $response->is_success;
+        my ($limit, $tokens) = $response->code == 400 ? _context_tokens($data) : ();
+        if ($limit && $args{shorten} && $attempt < MAX_SHORTEN_RETRIES) {
+            # Character/token ratios are approximate. Leave headroom and
+            # retry only the documented input-length error, never every 400.
+            my $ratio = 0.97 * $limit / $tokens;
+            $ratio = 0.95 if $ratio > 0.95;
+            my $shorter = $args{shorten}->($text, $ratio);
+            if (defined $shorter && length($shorter) < length($text)) {
+                $text = $shorter;
+                next;
+            }
+        }
+        MT::Plugin::Jev::fail('OpenAI embedding input has [_1] tokens; the maximum is [_2].', $tokens, $limit)
+            if $limit;
+        MT::Plugin::Jev::fail('OpenAI returned HTTP [_1].', $response->code);
+    }
     my $invalid = 'OpenAI returned an invalid embedding.';
     MT::Plugin::Jev::fail($invalid) unless ref $data eq 'HASH'
         && ($data->{model} || '') eq MODEL && ref $data->{data} eq 'ARRAY'
@@ -63,6 +82,15 @@ sub embed {
     $self->{token_usage}->add({requests => 1, input_tokens => $usage->{prompt_tokens},
         output_tokens => 0, cached_input_tokens => 0});
     return $vector;
+}
+
+sub _context_tokens {
+    my ($data) = @_;
+    return unless ref $data eq 'HASH' && ref $data->{error} eq 'HASH';
+    my $message = $data->{error}{message};
+    return unless defined $message && !ref $message
+        && $message =~ /\bmaximum context length is ([1-9][0-9]{0,8}) tokens\b.*?\brequested ([1-9][0-9]{0,8}) tokens\b/s;
+    return $2 > $1 ? (0 + $1, 0 + $2) : ();
 }
 
 sub usage { $_[0]{usage} }

@@ -123,6 +123,34 @@ sub columns {
     return [sort @columns];
 }
 
+sub shorten_index_text {
+    my ($class, $text, $ratio) = @_;
+    my $json = JSON::PP->new->canonical;
+    my $fields = $json->decode($text);
+    my $remaining = int(length($text) * (1 - $ratio)) + 1;
+    # Work on a decoded copy. Keep titles/data labels until other values
+    # have been exhausted; within each group trim the longest value first.
+    for my $primary (0, 1) {
+        my @values = map { _embedding_values(\$_->{value}) }
+            grep { (($_->{name} eq 'title' || $_->{name} eq 'label') ? 1 : 0) == $primary } @$fields;
+        for my $value (sort { length($$b) <=> length($$a) } @values) {
+            last unless $remaining > 0;
+            my $remove = length($$value) < $remaining ? length($$value) : $remaining;
+            substr($$value, length($$value) - $remove) = '';
+            $remaining -= $remove;
+        }
+    }
+    my $shorter = $json->encode($fields);
+    return length($shorter) < length($text) ? $shorter : undef;
+}
+
+sub _embedding_values {
+    my ($value) = @_;
+    return map { _embedding_values(\$_) } @{$$value} if ref $$value eq 'ARRAY';
+    return map { _embedding_values(\$$value->{$_}) } sort keys %{$$value} if ref $$value eq 'HASH';
+    return !ref $$value && defined $$value ? ($value) : ();
+}
+
 sub index_document {
     my ($class, $object, $api) = @_;
     # Read the core column definitions outside CMS without populating MT's

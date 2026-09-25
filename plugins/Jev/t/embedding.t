@@ -67,6 +67,30 @@ $index->vector('bad');
 my $error; eval { $index->unpack_vector; 1 } or $error = $@;
 like "$error", qr/Invalid stored embedding/, 'bad BLOB refused';
 
+subtest 'shortened embedding retains full source for freshness and evaluation' => sub {
+    my $original = \&MT::Plugin::Jev::OpenAIClient::embed;
+    my @inputs;
+    $mock->redefine(embed => sub {
+        my ($client, $text, %args) = @_;
+        push @inputs, $args{shorten}->($text, 0.8);
+        return [1, (0) x 3071];
+    });
+    my $full = '長い本文。' x 2000;
+    my $long = MT::Test::Permission->make_entry(blog_id => $site->id,
+        title => 'タイトルは残す', text => $full . '末尾に料金の言及がある');
+    my $document = MT::Plugin::Jev::Content->index_document($long);
+    my $saved = $model->load({object_type => 'entry', object_id => $long->id});
+    ok $saved->current($document->{hash}), 'index uses full document hash';
+    unlike $inputs[-1], qr/末尾に料金/, 'embedding copy can omit the tail';
+    like $document->{text}, qr/末尾に料金/, 'full search fields retain the tail';
+    is(MT->model('entry')->load($long->id)->text, $full . '末尾に料金の言及がある', 'stored article remains intact');
+    $long->text($full . '末尾に費用の言及がある');
+    $long->save or die $long->errstr;
+    is scalar @inputs, 2, 'change only in omitted tail still refreshes embedding';
+    $long->remove;
+    $mock->redefine(embed => $original);
+};
+
 subtest 'numeric float32 path preserves the previous cosine values' => sub {
     my $query = $model->normalized([map { cos($_ / 3) } 1..3072]);
     for my $source (

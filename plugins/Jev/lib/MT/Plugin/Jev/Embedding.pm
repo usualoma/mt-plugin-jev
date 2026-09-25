@@ -97,7 +97,8 @@ sub refresh {
     my $key = MT::Plugin::Jev::plugin()->get_config_value('openai_api_key', 'system');
     return 'unconfigured' unless $key;
     my $client = $args{client} || MT::Plugin::Jev::OpenAIClient->new(api_key => $key);
-    my $vector = $class->normalized($client->embed($document->{text}));
+    my $vector = $class->normalized($client->embed($document->{text},
+        shorten => sub { MT::Plugin::Jev::Content->shorten_index_text(@_) }));
     my $index = $class->new;
     $index->set_values({%$terms, blog_id => $object->blog_id,
         content_type_id => $type eq 'content_data' ? $object->content_type_id : 0,

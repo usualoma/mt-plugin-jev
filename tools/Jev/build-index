@@ -8,6 +8,9 @@ use Getopt::Long qw(GetOptions);
 use MT::Bootstrap;
 use MT;
 
+binmode STDOUT, ':encoding(UTF-8)';
+binmode STDERR, ':encoding(UTF-8)';
+
 my ($blog_id, $type, $force, $help);
 GetOptions('blog-id=i' => \$blog_id, 'type=s' => \$type, 'force' => \$force, 'help' => \$help)
     or die "Invalid options. Use --help.\n";

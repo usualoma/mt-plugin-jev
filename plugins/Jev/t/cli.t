@@ -10,6 +10,7 @@ use File::Temp qw(tempdir);
 use File::Path qw(make_path);
 use File::Copy qw(copy);
 use IPC::Run3;
+use Encode qw(decode);
 use MT::Plugin::Jev::Embedding;
 
 $MT::Plugin::Jev::Test::env->prepare_fixture('db');
@@ -41,7 +42,14 @@ print {$fh} <<'MOCK';
 package JevFakeOpenAI;
 use MT::Plugin::Jev::OpenAIClient;
 no warnings 'redefine';
-*MT::Plugin::Jev::OpenAIClient::embed = sub { die 'deliberate failure' if $ENV{JEV_FAIL}; [1, (0) x 3071] };
+*MT::Plugin::Jev::OpenAIClient::embed = sub {
+    die 'deliberate failure' if $ENV{JEV_FAIL};
+    if ($ENV{JEV_JA_ERROR}) {
+        MT->instance->set_language('ja');
+        MT::Plugin::Jev::fail('OpenAI embedding input has [_1] tokens; the maximum is [_2].', 9000, 8192);
+    }
+    [1, (0) x 3071];
+};
 1;
 MOCK
 close $fh;
@@ -76,6 +84,13 @@ unlike $err, qr/fake-cli-key|deliberate failure/, 'private exception not printed
 ($status, $out, $err) = cli('--blog-id', $site->id);
 is $status, 0, 'rerunning needs no resume token' or diag $err;
 is scalar(() = $out =~ /generated/g), 1, 'only missing record regenerated';
+{
+    local $ENV{JEV_JA_ERROR} = 1;
+    ($status, $out, $err) = cli('--blog-id', $site->id, '--type', 'entry', '--force');
+}
+is $status, 1, 'translated API error stops CLI';
+unlike $err, qr/Wide character/, 'Japanese error produces no encoding warning';
+like decode('UTF-8', $err), qr/9000トークン.*8192トークン/, 'Japanese token error is valid UTF-8';
 ($status, $out, $err) = cli('--type', 'asset');
 ok $status, 'unsupported type rejected';
 ($status, $out, $err) = cli('--help');
