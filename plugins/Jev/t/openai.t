@@ -143,6 +143,64 @@ subtest 'live context-length error without input token count can be shortened' =
     }
 };
 
+subtest 'opt-in diagnostics expose failure details without keys or request content' => sub {
+    my ($c, $u) = client({error => {type => 'invalid_request_error',
+        message => "Invalid input format. unit-secret sk-another-key\n日本語の詳細"}}, 400);
+    my @events;
+    $c->{debug} = sub { push @events, $_[0] };
+    $u->{response}->header('Content-Type' => 'application/json', 'x-request-id' => 'req_example');
+    my $error = caught(sub { $c->embed('private document content') });
+    is $error->{phrase}, 'OpenAI returned HTTP [_1].', 'debug leaves error handling unchanged';
+    is_deeply [map { $_->{event} } @events], ['embedding_request', 'embedding_response'], 'request and response recorded';
+    is $events[0]{input_chars}, length('private document content'), 'only input length reported';
+    is $events[0]{shortening_enabled}, 0, 'no shortener is visible in diagnostics';
+    is $events[1]{status}, 400, 'HTTP status available';
+    is $events[1]{request_id}, 'req_example', 'request ID available';
+    is $events[1]{json_decoded}, 1, 'JSON decoding succeeded';
+    like $events[1]{response_body}, qr/Invalid input format/, 'actual error message available';
+    like $events[1]{response_body}, qr/日本語の詳細/, 'response decoded as UTF-8';
+    like $events[1]{response_body}, qr/\[REDACTED\]/, 'credentials redacted';
+    unlike $json->encode(\@events), qr/unit-secret|sk-another-key|private document content|Authorization/,
+        'no keys, request headers or request content emitted';
+
+    ($c, $u) = client('<html>Proxy rejected request</html>' . ('x' x 5000) . 'unit-secret', 400);
+    @events = ();
+    $c->{debug} = sub { push @events, $_[0] };
+    caught(sub { $c->embed('query') });
+    is $events[1]{json_decoded}, 0, 'non-JSON failure identified';
+    like $events[1]{response_body}, qr/Proxy rejected request/, 'proxy failure visible';
+    like $events[1]{response_body}, qr/\[truncated\]$/, 'large error response bounded';
+    cmp_ok length($events[1]{response_body}), '<', 4200, 'preview size capped';
+
+    ($c, $u) = client(body());
+    @events = ();
+    $c->{debug} = sub { push @events, $_[0] };
+    $c->embed('query');
+    ok !exists $events[1]{response_body}, 'successful vectors omitted';
+    $u->{response} = sub { die 'unit-secret transport failure' };
+    @events = ();
+    caught(sub { $c->embed('query') });
+    is $events[1]{event}, 'embedding_transport_error', 'transport failure recorded';
+    unlike $events[1]{error}, qr/unit-secret/, 'transport exception sanitized';
+
+    my $too_long = {error => {message => "Invalid 'input': maximum context length is 8192 tokens."}};
+    ($c, $u) = client($too_long, 400);
+    @events = ();
+    $c->{debug} = sub { push @events, $_[0] };
+    # A non-JSON response on retry must not reuse the first error's parsed data.
+    $u->{response} = sub { HTTP::Response->new(400, 'Bad Request', [], @{$u->{requests}} == 1
+        ? $json->encode($too_long) : '<html>Different failure</html>') };
+    $error = caught(sub { $c->embed(JSON::PP->new->encode([{name => 'text', value => 'long text ' x 100}]),
+        shorten => sub { MT::Plugin::Jev::Content->shorten_index_text(@_) }) });
+    is scalar @{$u->{requests}}, 2, 'unrelated retry response stops shortening';
+    is $error->{phrase}, 'OpenAI returned HTTP [_1].', 'second error not misidentified';
+    my @retries = grep { $_->{event} eq 'embedding_retry' } @events;
+    is scalar @retries, 1, 'shortening retry recorded';
+    is $retries[0]{ratio}, 0.5, 'retry reduction reported';
+    is $retries[0]{context_limit}, 8192, 'recognized limit reported';
+    cmp_ok $retries[0]{next_input_chars}, '<', $retries[0]{input_chars}, 'reduction visible';
+};
+
 ($client, $ua) = client(body());
 like ''.caught(sub { $client->embed(' ') }), qr/Enter text/, 'empty input rejected';
 is scalar @{$ua->{requests}}, 0, 'empty input makes no call';

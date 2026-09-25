@@ -41,8 +41,17 @@ open my $fh, '>', "$dir/JevFakeOpenAI.pm" or die $!;
 print {$fh} <<'MOCK';
 package JevFakeOpenAI;
 use MT::Plugin::Jev::OpenAIClient;
+use HTTP::Response;
 no warnings 'redefine';
+my $original_new = \&MT::Plugin::Jev::OpenAIClient::new;
+my $original_embed = \&MT::Plugin::Jev::OpenAIClient::embed;
+*MT::Plugin::Jev::OpenAIClient::new = sub {
+    my ($class, %args) = @_;
+    $args{ua} = bless {}, 'JevFakeUA' if $ENV{JEV_DEBUG_HTTP};
+    $original_new->($class, %args);
+};
 *MT::Plugin::Jev::OpenAIClient::embed = sub {
+    return $original_embed->(@_) if $ENV{JEV_DEBUG_HTTP};
     die 'deliberate failure' if $ENV{JEV_FAIL};
     if ($ENV{JEV_JA_ERROR}) {
         MT->instance->set_language('ja');
@@ -52,6 +61,12 @@ no warnings 'redefine';
     }
     [1, (0) x 3071];
 };
+package JevFakeUA;
+sub timeout { }
+sub request {
+    HTTP::Response->new(400, 'Bad Request', ['Content-Type' => 'application/json', 'x-request-id' => 'req_cli'],
+        JSON::PP->new->encode({error => {type => 'invalid_request_error', message => 'Unknown input format fake-cli-key'}}));
+}
 1;
 MOCK
 close $fh;
@@ -100,11 +115,30 @@ like decode('UTF-8', $err), qr/9000トークン.*8192トークン/, 'Japanese to
 is $status, 1, 'context limit without input count stops CLI after retries';
 unlike $err, qr/Wide character/, 'limit-only Japanese error produces no encoding warning';
 like decode('UTF-8', $err), qr/上限の8192トークンを超えています/, 'known context limit translated without input count';
+{
+    local $ENV{JEV_DEBUG_HTTP} = 1;
+    ($status, $out, $err) = cli('--blog-id', $site->id, '--type', 'entry');
+    is $status, 1, 'HTTP failure without debugging';
+    unlike $err, qr/\[Jev debug\]|Unknown input format|fake-cli-key/, 'debug details absent by default';
+    ($status, $out, $err) = cli('--blog-id', $site->id, '--type', 'entry', '--debug');
+}
+is $status, 1, 'debugging preserves CLI failure status';
+my @debug = map { JSON::PP->new->decode($_) } decode('UTF-8', $err) =~ /^\[Jev debug\] (.+)$/mg;
+is_deeply [map { $_->{event} } @debug], [qw(startup embedding_request embedding_response)], 'diagnostics reach STDERR';
+is $debug[0]{plugin_version}, $plugin->version, 'loaded version reported';
+like $debug[0]{modules}{'MT/Plugin/Jev/OpenAIClient.pm'}, qr{/OpenAIClient\.pm$}, 'loaded client path reported';
+is $debug[1]{object_id}, $entry->id, 'HTTP request associated with entry';
+is $debug[1]{shortening_enabled}, 1, 'indexing uses a shortening callback';
+is $debug[2]{status}, 400, 'upstream status reported';
+like $debug[2]{response_body}, qr/Unknown input format/, 'actual upstream error available';
+unlike $err, qr/fake-cli-key|CLI entry/, 'API key and article content not logged';
+unlike $out, qr/\[Jev debug\]/, 'normal output remains separate';
 ($status, $out, $err) = cli('--type', 'asset');
 ok $status, 'unsupported type rejected';
 ($status, $out, $err) = cli('--help');
 is $status, 0, 'help is usable';
 like $out, qr/--force/, 'options documented';
+like $out, qr/--debug/, 'debug option documented';
 like $out, qr{perl tools/Jev/build-index}, 'help shows the new command path';
 
 # The extra directory level must work in an installed MT tree without relying

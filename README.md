@@ -35,7 +35,7 @@ Like AI-Assistant, this plugin uses `ExtUtils::MakeMaker` and the Docker Compose
 docker compose run --rm --build builder
 ```
 
-The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.3.tar.gz` and `Jev-0.2.3.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, blog drafts, and build files.
+The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.4.tar.gz` and `Jev-0.2.4.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, blog drafts, and build files.
 
 The builder uses UID and GID `1000` by default. To match the generated files' ownership to your current user on Linux or similar systems, run:
 
@@ -54,22 +54,32 @@ make dist
 make zipdist
 ```
 
-To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.3-dev`; this does not change the version displayed by the plugin.
+To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.4-dev`; this does not change the version displayed by the plugin.
 
 ## CI and GitHub Releases
 
-The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.3-abc1234`.
+The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.4-abc1234`.
 
 Like AI-Assistant, tag builds use [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to create a **draft GitHub Release** with both archives attached. The tag must match `version` in `plugins/Jev/config.yaml`, prefixed with `v`; a mismatch fails the build. Tagged builds keep the configured plugin version unchanged. Only the release job receives `contents: write` permission, using the automatically provided GitHub token.
 
-To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.3`:
+To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.4`:
 
 ```sh
-git tag v0.2.3
-git push origin v0.2.3
+git tag v0.2.4
+git push origin v0.2.4
 ```
 
 Once the workflow succeeds, review and publish the draft on GitHub's Releases page.
+
+### Troubleshooting index generation
+
+To inspect an indexing failure, add `--debug` to the same `build-index` command:
+
+```sh
+perl tools/Jev/build-index --debug 2>jev-index-debug.log
+```
+
+Existing up-to-date indexes are still skipped; `--force` is not needed. Lines beginning `[Jev debug]` report the loaded plugin version and module paths, object type/ID, request sizes, HTTP status, content type/encoding, request ID, JSON decoding status, and shortening retries. Failed response bodies are included with each text value limited to 4096 characters; successful embedding vectors and request bodies are omitted. API keys are redacted. An upstream error can still quote parts of the input, so review the log before sharing it. Without `--debug`, diagnostics remain unchanged. Debug output is written only to STDERR, not to the MT activity log.
 
 ## Usage
 
@@ -123,7 +133,7 @@ For content data, choice fields include both stored values and display labels, w
 - Initial indexing and saves send documents to OpenAI. Search conditions are also embedded through OpenAI. Condition matching and relevance scoring send the search conditions and top candidates to the selected provider, TypeSafe or OpenAI. There is no automatic fallback to another evaluation provider.
 - With Jev selected, the overall search timeout is 45 seconds and the evaluation HTTP timeout is 10 seconds. With OpenAI selected, these limits are 180 and 60 seconds respectively. Embedding generation remains synchronous with a 10-second HTTP timeout.
 - OpenAI embedding generation accepts up to 8192 tokens per input. When indexing or saving a document, a recognized HTTP 400 context-length error triggers a shorter retry, up to three times within the existing 10-second deadline. When the API reports the input token count, it determines an approximate character reduction with headroom. If the error reports only the context limit, the text is approximately halved on each retry. No tokenizer dependency is added. The longest field values are trimmed from the end first, preserving titles and content-data labels until other values are exhausted. Structured values remain valid JSON. Other API errors are not retried, and search queries are never silently shortened. If the retry limit is reached, or the error cannot be recognized, indexing still stops.
-- Truncation affects only the embedding request. Original documents, full-document freshness hashes, and fields sent for condition matching remain intact. Topics mentioned only in the discarded text may be missed during candidate selection. Existing successful indexes remain valid; rerun `tools/Jev/build-index` without `--force` to skip them and retry missing indexes. The CLI writes UTF-8 diagnostics, and recognized length errors report only the input/limit token counts, never the upstream response body.
+- Truncation affects only the embedding request. Original documents, full-document freshness hashes, and fields sent for condition matching remain intact. Topics mentioned only in the discarded text may be missed during candidate selection. Existing successful indexes remain valid; rerun `tools/Jev/build-index` without `--force` to skip them and retry missing indexes. The CLI writes UTF-8 diagnostics. By default, recognized length errors report only the input/limit token counts; `--debug` also includes failed response bodies as described above.
 - Evaluation request JSON is limited to 24,000 bytes per candidate and 48,000 bytes per request. Condition matching and relevance scoring share the same document data. OpenAI uses Structured Outputs through the Responses API, with a maximum of 8192 output tokens. Automatic input truncation and response storage are disabled.
 - Both evaluation providers use the existing LWP client, running in parallel through Perl's built-in `fork`, with up to five processes by default. No additional CPAN dependencies are required; the target environment must support `fork`, as Linux does. Concurrency is configurable from 1 to 10, and the actual number of child processes is capped by the number of candidate batches. No child process is created when concurrency is 1 or there is only one batch. HTTPS connections are reused within each process. Simultaneous searches each use their own set of processes; concurrency is not coordinated across searches.
 - Document grouping, questions, batch sizes, and token counts are the same as for sequential execution. Parallelism does not increase the normal number of API calls.

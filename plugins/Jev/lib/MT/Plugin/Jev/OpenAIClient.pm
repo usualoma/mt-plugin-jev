@@ -3,6 +3,7 @@ package MT::Plugin::Jev::OpenAIClient;
 use strict;
 use warnings;
 use JSON::PP ();
+use Encode qw(decode encode_utf8);
 use HTTP::Request;
 use Time::HiRes qw(time);
 use MT::Plugin::Jev;
@@ -42,10 +43,34 @@ sub embed {
         $request->header('Content-Type' => 'application/json');
         $request->content($json->encode({model => MODEL, dimensions => DIMENSIONS,
             encoding_format => 'float', input => $text}));
+        $self->_debug({event => 'embedding_request', attempt => $attempt + 1,
+            endpoint => ENDPOINT, model => MODEL, dimensions => DIMENSIONS,
+            input_chars => length($text), input_bytes => length(encode_utf8($text)),
+            request_bytes => length($request->content), shortening_enabled => $args{shorten} ? 1 : 0})
+            if $self->{debug};
         my $response = eval { $self->{ua}->request($request) };
+        my $transport_error = $@;
+        $self->_debug({event => 'embedding_transport_error', attempt => $attempt + 1,
+            error => "$transport_error"}) if $self->{debug} && !$response;
         MT::Plugin::Jev::fail('Natural-language search timed out.') if time >= $deadline;
         MT::Plugin::Jev::fail('OpenAI could not be reached.') unless $response;
         $data = eval { $json->decode($response->content) };
+        my $decoded = $@ ? 0 : 1;
+        if ($self->{debug}) {
+            my $record = {event => 'embedding_response', attempt => $attempt + 1,
+                status => 0 + $response->code, request_id => scalar $response->header('x-request-id'),
+                content_type => scalar $response->header('Content-Type'),
+                content_encoding => scalar $response->header('Content-Encoding'),
+                response_bytes => length($response->content), json_decoded => $decoded ? 1 : 0};
+            unless ($response->is_success) {
+                # Decode content encoding for diagnostics only. Leave response
+                # handling unchanged until the actual failure is understood.
+                my $body = eval { $response->decoded_content(charset => 'none') };
+                $body = $response->content unless defined $body;
+                $record->{response_body} = decode('UTF-8', $body);
+            }
+            $self->_debug($record);
+        }
         last if $response->is_success;
         my ($limit, $tokens) = $response->code == 400 ? _context_tokens($data) : ();
         if ($limit && $args{shorten} && $attempt < MAX_SHORTEN_RETRIES) {
@@ -55,6 +80,10 @@ sub embed {
             $ratio = 0.95 if $ratio > 0.95;
             my $shorter = $args{shorten}->($text, $ratio);
             if (defined $shorter && length($shorter) < length($text)) {
+                $self->_debug({event => 'embedding_retry', attempt => $attempt + 1,
+                    context_limit => $limit, input_tokens => $tokens, ratio => $ratio,
+                    input_chars => length($text), next_input_chars => length($shorter)})
+                    if $self->{debug};
                 $text = $shorter;
                 next;
             }
@@ -84,6 +113,22 @@ sub embed {
     $self->{token_usage}->add({requests => 1, input_tokens => $usage->{prompt_tokens},
         output_tokens => 0, cached_input_tokens => 0});
     return $vector;
+}
+
+sub _debug {
+    my ($self, $record) = @_;
+    return unless $self->{debug};
+    # Keys can appear in upstream error messages. Redact before truncating
+    # so even a key straddling the preview boundary stays hidden.
+    for my $name (keys %$record) {
+        next unless defined $record->{$name} && !ref $record->{$name};
+        $record->{$name} =~ s/\Q$self->{api_key}\E/[REDACTED]/g if length($self->{api_key} || '');
+        $record->{$name} =~ s/\bsk-[A-Za-z0-9_-]+/[REDACTED]/g;
+        if (length($record->{$name}) > 4096) {
+            $record->{$name} = substr($record->{$name}, 0, 4096) . ' [truncated]';
+        }
+    }
+    $self->{debug}->($record);
 }
 
 sub _context_tokens {
