@@ -35,7 +35,7 @@ Like AI-Assistant, this plugin uses `ExtUtils::MakeMaker` and the Docker Compose
 docker compose run --rm --build builder
 ```
 
-The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.0.tar.gz` and `Jev-0.2.0.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, and build files.
+The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.1.tar.gz` and `Jev-0.2.1.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, blog drafts, and build files.
 
 The builder uses UID and GID `1000` by default. To match the generated files' ownership to your current user on Linux or similar systems, run:
 
@@ -54,19 +54,19 @@ make dist
 make zipdist
 ```
 
-To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.0-dev`; this does not change the version displayed by the plugin.
+To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.1-dev`; this does not change the version displayed by the plugin.
 
 ## CI and GitHub Releases
 
-The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.0-abc1234`.
+The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.1-abc1234`.
 
 Like AI-Assistant, tag builds use [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to create a **draft GitHub Release** with both archives attached. The tag must match `version` in `plugins/Jev/config.yaml`, prefixed with `v`; a mismatch fails the build. Tagged builds keep the configured plugin version unchanged. Only the release job receives `contents: write` permission, using the automatically provided GitHub token.
 
-To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.0`:
+To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.1`:
 
 ```sh
-git tag v0.2.0
-git push origin v0.2.0
+git tag v0.2.1
+git push origin v0.2.1
 ```
 
 Once the workflow succeeds, review and publish the draft on GitHub's Releases page.
@@ -99,9 +99,14 @@ Search is limited to the selected candidates, so even conditions such as "does n
 | Match threshold | `0.5` | 0–1. Candidates match when the selected provider's match probability is at least this value. |
 | Candidates per request | `5` | 1–50. Documents grouped into one request. Large inputs are split into smaller groups. |
 | Concurrent evaluation requests | `5` | 1–10. Maximum concurrent requests per search. Set to 1 for sequential execution. |
+| Log search token usage | `OFF` | Write one MT activity log entry per completed natural-language search. |
 | Use natural-language search by default in header search | `ON` | Initial state of the header checkbox. |
 
 Only the last four characters of each saved key are displayed. Saving without selecting **Update API key** preserves the existing value. Selecting it and saving an empty field deletes the key. Keys are stored in MT's standard plugin settings.
+
+With **Log search token usage** enabled, `MT->log` records an INFO entry with category `jev_usage` and a message beginning `Jev search token usage:` followed by JSON. The entry includes the search object type, providers and model names, successful request counts, and token totals for query embedding and candidate evaluation separately. Usage from all parallel workers and size-split requests is combined into one entry. `cached_input_tokens` is included in `input_tokens`, not added to it. Counts missing from an API response are `null`, not zero; a search making no API calls records zero usage.
+
+Logs contain no search text, document content, or API keys. They are associated with the search site (or the system scope) and the searching user. Only completed searches are logged, including searches with no matches. Failed searches, failed HTTP attempts, and embeddings generated while indexing or saving documents are excluded, so these logs are usage diagnostics rather than a complete billing ledger.
 
 Switching the evaluation provider or evaluation model does not require rebuilding the index. OpenAI's match probability is an estimate generated by the model as JSON; it is not guaranteed to have the same probability characteristics or relevance score distribution as Jev's Noul and Score. Check thresholds and search results with the model you use. The default model is [GPT-5.4 Mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini), using [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) for responses.
 

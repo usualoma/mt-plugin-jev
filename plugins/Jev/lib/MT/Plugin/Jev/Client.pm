@@ -9,6 +9,7 @@ use IO::Select;
 use POSIX ();
 use Errno qw(EINTR);
 use MT::Plugin::Jev;
+use MT::Plugin::Jev::Usage;
 
 use constant ENDPOINT => 'https://api.typesafe.ai/v1/systemone';
 use constant REQUEST_TIMEOUT => 10;
@@ -44,7 +45,8 @@ sub new {
         );
         $args{ua}->env_proxy;
     }
-    return bless { %args, json => JSON::PP->new->utf8->canonical }, $class;
+    return bless { %args, json => JSON::PP->new->utf8->canonical,
+        token_usage => MT::Plugin::Jev::Usage->new }, $class;
 }
 
 sub check_deadline {
@@ -151,7 +153,7 @@ sub evaluate_batches {
                     unless $reaped > 0 && !$status && ref $result eq 'HASH';
                 MT::Plugin::Jev::fail($result->{error}{phrase}, @{$result->{error}{params}}) if $result->{error};
                 @answers{keys %{$result->{answers}}} = values %{$result->{answers}};
-                $self->{input_tokens} += $result->{input_tokens};
+                $self->{token_usage}->add($result->{usage});
             }
         }
         1;
@@ -174,7 +176,7 @@ sub evaluate_batches {
 sub _worker {
     my ($self, $writer, $batches, $slot, $worker_count, $condition, $deadline) = @_;
     my %answers;
-    $self->{input_tokens} = 0;
+    $self->{token_usage} = MT::Plugin::Jev::Usage->new;
     my $ok = eval {
         # Workers each make ordinary sequential LWP calls, including
         # retries. Each batch retains exactly the same documents and payload.
@@ -186,7 +188,7 @@ sub _worker {
         1;
     };
     my $error = $@;
-    my $result = $ok ? {answers => \%answers, input_tokens => $self->input_tokens}
+    my $result = $ok ? {answers => \%answers, usage => $self->token_usage}
         : {error => ref($error) eq 'MT::Plugin::Jev::Error'
             ? {phrase => $error->{phrase}, params => $error->{params}}
             : {phrase => '[_1] could not be reached. The search did not complete.', params => [$self->provider]}};
@@ -256,8 +258,11 @@ sub _request {
         unless $response->is_success;
     my $data = eval { $self->{json}->decode($response->content) };
     my $scores = $self->_decode_answers($data, $ids);
-    $self->{input_tokens} += $data->{usage}{input_tokens} if ref $data->{usage} eq 'HASH'
-        && defined $data->{usage}{input_tokens} && $data->{usage}{input_tokens} =~ /\A\d+\z/;
+    my $usage = ref $data->{usage} eq 'HASH' ? $data->{usage} : {};
+    my $details = ref $usage->{input_tokens_details} eq 'HASH' ? $usage->{input_tokens_details} : {};
+    $self->{token_usage}->add({requests => 1,
+        input_tokens => $usage->{input_tokens}, output_tokens => $usage->{output_tokens},
+        cached_input_tokens => $details->{cached_tokens}});
     return $scores;
 }
 
@@ -280,6 +285,7 @@ sub _decode_answers {
     return \%scores;
 }
 
-sub input_tokens { $_[0]{input_tokens} || 0 }
+sub token_usage { $_[0]{token_usage}->as_hash }
+sub input_tokens { $_[0]->token_usage->{input_tokens} || 0 }
 
 1;

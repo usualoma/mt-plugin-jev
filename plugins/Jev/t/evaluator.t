@@ -30,7 +30,7 @@ sub envelope {
         {type => 'message', role => 'assistant', status => 'completed', content => [
             {type => 'output_text', text => JSON::PP->new->encode({answers => $answers})},
         ]},
-    ], usage => {input_tokens => 123, output_tokens => 45}};
+    ], usage => {input_tokens => 123, output_tokens => 45, input_tokens_details => {cached_tokens => 64}}};
 }
 sub answer { +{id => $_[0], match_probability => 0.9, relevance => 3} }
 sub response { HTTP::Response->new(200, 'OK', [], $json->encode($_[0])) }
@@ -54,6 +54,8 @@ subtest 'Responses API contract, Unicode and shared search result shape' => sub 
         candidates => [candidate('entry_1'), candidate('entry_2')]);
     is_deeply $scores, {map { $_ => {noul => 0.9, score => 3} } qw(entry_1 entry_2)}, 'out-of-order IDs mapped correctly';
     is $client->input_tokens, 123, 'input usage recorded';
+    is_deeply $client->token_usage, {requests => 1, input_tokens => 123, output_tokens => 45,
+        cached_input_tokens => 64, total_tokens => 168}, 'output and cached input captured without double counting';
     is scalar @{$ua->{requests}}, 1, 'one request for the batch';
     my $request = $ua->{requests}[0];
     is $request->header('Authorization'), 'Bearer openai-secret', 'OpenAI key sent only to OpenAI';
@@ -138,6 +140,8 @@ subtest 'size splitting and forked batches reuse the existing executor' => sub {
     my $scores = $client->evaluate_batch(condition => 'query', candidates => [map { candidate("entry_$_", 'a' x 18000) } 1..3]);
     is scalar keys %$scores, 3, 'all long documents retained';
     is scalar @{$ua->{requests}}, 2, 'large batch split';
+    is_deeply $client->token_usage, {requests => 2, input_tokens => 246, output_tokens => 90,
+        cached_input_tokens => 128, total_tokens => 336}, 'usage follows actual size-split requests';
     ($client, $ua) = client(\&reply_to_request);
     like ''.caught(sub { $client->evaluate_batch(condition => 'query', candidates => [candidate('entry_1', '字' x 10000)]) }),
         qr/size limit/, 'oversized document rejected';
@@ -146,6 +150,8 @@ subtest 'size splitting and forked batches reuse the existing executor' => sub {
     $scores = $client->evaluate_batches(condition => 'query', batches => \@batches);
     is_deeply $scores, {map { ("entry_$_" => {noul => 0.9, score => 3}) } 1..10}, 'all forked OpenAI answers collected';
     is $client->input_tokens, 1230, 'forked input usage collected';
+    is_deeply $client->token_usage, {requests => 10, input_tokens => 1230, output_tokens => 450,
+        cached_input_tokens => 640, total_tokens => 1680}, 'all usage fields collected from forked workers';
     is scalar @{$ua->{requests}}, 0, 'requests executed in child processes';
 };
 
@@ -160,6 +166,7 @@ subtest 'OpenAI retry policy and longer deadline remain bounded' => sub {
     $client->evaluate_batch(condition => 'query', candidates => [candidate('entry_1')]);
     is_deeply \@sleeps, [3, 2], '429 and 5xx back off';
     is scalar @{$ua->{requests}}, 3, 'two retries at most';
+    is $client->token_usage->{requests}, 1, 'only successful response usage counted after retry';
     ($client, $ua) = client(HTTP::Response->new(401, 'Invalid', [], 'openai-secret sensitive content'));
     my $error = caught(sub { $client->evaluate_batch(condition => 'query', candidates => [candidate('entry_1')]) });
     is_deeply $error->{params}, ['OpenAI', 401], 'provider and HTTP status retained';

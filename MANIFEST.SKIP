@@ -14,6 +14,7 @@
 ^compose\.yml$
 
 # Development documentation and tests
+^docs/
 ^specs/
 ^plugins/Jev/(?:t|xt)/
 node_modules/

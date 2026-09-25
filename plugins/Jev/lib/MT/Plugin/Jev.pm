@@ -38,6 +38,9 @@ sub validate_config {
         unless defined $config->{openai_evaluation_model}
         && $config->{openai_evaluation_model} =~ /\A[a-zA-Z0-9][a-zA-Z0-9._:\/-]{0,127}\z/;
     validate_concurrency($config->{jev_concurrency});
+    fail('The token usage log setting must be 0 or 1.')
+        if defined $config->{jev_log_usage}
+        && (ref $config->{jev_log_usage} || $config->{jev_log_usage} !~ /\A[01]\z/);
     fail('The candidate limit must be an integer from 1 to 500.')
         unless defined $config->{jev_candidate_limit} && $config->{jev_candidate_limit} =~ /\A[1-9][0-9]{0,2}\z/
         && $config->{jev_candidate_limit} <= 500;

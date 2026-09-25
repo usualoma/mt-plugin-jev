@@ -1,7 +1,7 @@
 id: Jev
 key: Jev
 name: Jev
-version: 0.2.0
+version: 0.2.1
 schema_version: 0.01
 object_types:
   jev_embedding: MT::Plugin::Jev::Embedding
@@ -35,6 +35,9 @@ settings:
   jev_concurrency:
     default: 5
     scope: system
+  jev_log_usage:
+    default: 0
+    scope: system
   jev_header_default:
     default: 1
     scope: system
@@ -57,6 +60,9 @@ callbacks:
 
 l10n_lexicon:
   ja:
+    'Log search token usage': '検索の使用トークン数をログに記録'
+    'Write one activity log entry per completed natural-language search. Search text and document content are not logged.': '完了した自然言語検索ごとに使用トークン数を操作ログに記録します。検索文や文書の内容は記録しません。'
+    'The token usage log setting must be 0 or 1.': '使用トークン数のログ設定はONまたはOFFにしてください。'
     'Search entries, pages and content data using natural-language conditions with Jev or OpenAI.': 'JevまたはOpenAIを使い、自然文の条件で記事・ウェブページ・コンテンツデータを検索します。'
     'Evaluation provider': '条件判定・関連度採点に使うAPI'
     'Select the API for matching and relevance scoring. Embeddings always use OpenAI.': '候補の条件判定と関連度採点に使うAPIを選びます。embeddingの生成には常にOpenAIを使います。'

@@ -93,6 +93,7 @@ subtest 'configurable concurrency preserves answers, payloads and usage' => sub 
             my $parallel_time = time - $start;
             is_deeply $result, \%serial_answers, 'scores and document identity unchanged';
             is $parallel->input_tokens, $serial->input_tokens, 'usage summed across workers';
+            is_deeply $parallel->token_usage, $serial->token_usage, 'missing usage stays unknown across workers';
             my $events = events($parallel_log);
             my @starts = grep { $_->{phase} eq 'start' } @$events;
             is scalar @starts, 10, 'same ten requests for fifty documents';

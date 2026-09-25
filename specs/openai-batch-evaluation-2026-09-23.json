@@ -1,0 +1,2210 @@
+{
+  "date": "2026-09-23",
+  "model": "gpt-5.4-mini",
+  "query": "ちいさくてかわいいやつに関する感想で、好意的なもの。映画を対象にしたもののみ。ネタバレを含まない",
+  "threshold": 0.5,
+  "runs": {
+    "baseline": [
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.92,
+            "score": 4
+          },
+          "CKW-0002": {
+            "noul": 0.08,
+            "score": 1
+          },
+          "CKW-0003": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0004": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0005": {
+            "noul": 0.95,
+            "score": 4
+          }
+        },
+        "seconds": 2.32336592674255,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0006": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0007": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0008": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0009": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0010": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.48406910896301,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0011": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0012": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0013": {
+            "noul": 0.03,
+            "score": 1
+          },
+          "CKW-0014": {
+            "noul": 0,
+            "score": 1
+          },
+          "CKW-0015": {
+            "noul": 0,
+            "score": 1
+          }
+        },
+        "seconds": 2.37601780891418,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0017": {
+            "noul": 0.02,
+            "score": 2
+          },
+          "CKW-0018": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0019": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0020": {
+            "noul": 0.02,
+            "score": 1
+          }
+        },
+        "seconds": 2.46910214424133,
+        "variant": "baseline"
+      },
+      {
+        "batch_size": 5,
+        "count": 20,
+        "false_negatives": [
+          "CKW-0009"
+        ],
+        "false_positives": [
+          "CKW-0018"
+        ],
+        "input_tokens": 9968,
+        "matches": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0018"
+        ],
+        "offset": 0,
+        "output_tokens": 456,
+        "seconds": 8.65482902526855,
+        "spoiler_matches": [
+          "CKW-0018"
+        ],
+        "summary": 1,
+        "variant": "baseline"
+      }
+    ],
+    "single": [
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.86,
+            "score": 4
+          }
+        },
+        "seconds": 1.38509511947632,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0002": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.86864399909973,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0003": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.35910987854004,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0004": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.08943796157837,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0005": {
+            "noul": 0.93,
+            "score": 4
+          }
+        },
+        "seconds": 1.18865704536438,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0006": {
+            "noul": 0.01,
+            "score": 3
+          }
+        },
+        "seconds": 1.13892197608948,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0007": {
+            "noul": 0.08,
+            "score": 1
+          }
+        },
+        "seconds": 1.31833696365356,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0008": {
+            "noul": 0.02,
+            "score": 1
+          }
+        },
+        "seconds": 1.23258209228516,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0009": {
+            "noul": 0.97,
+            "score": 4
+          }
+        },
+        "seconds": 1.07419991493225,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0010": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.14467597007751,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0011": {
+            "noul": 0.08,
+            "score": 2
+          }
+        },
+        "seconds": 1.23170685768127,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0012": {
+            "noul": 0.01,
+            "score": 0
+          }
+        },
+        "seconds": 1.13988208770752,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0013": {
+            "noul": 0.03,
+            "score": 2
+          }
+        },
+        "seconds": 1.07683300971985,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0014": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 3.59116697311401,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0015": {
+            "noul": 0.03,
+            "score": 1
+          }
+        },
+        "seconds": 1.17509412765503,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.19609093666077,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0017": {
+            "noul": 0.08,
+            "score": 2
+          }
+        },
+        "seconds": 1.42716097831726,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0018": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.12282085418701,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0019": {
+            "noul": 0.03,
+            "score": 2
+          }
+        },
+        "seconds": 1.19600987434387,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0020": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.11849308013916,
+        "variant": "baseline"
+      },
+      {
+        "batch_size": 1,
+        "count": 20,
+        "false_negatives": [],
+        "false_positives": [],
+        "input_tokens": 14640,
+        "matches": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009"
+        ],
+        "offset": 0,
+        "output_tokens": 680,
+        "seconds": 27.0807700157166,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "baseline"
+      }
+    ],
+    "baseline-holdout": [
+      {
+        "scores": {
+          "CKW-0021": {
+            "noul": 0.97,
+            "score": 4
+          },
+          "CKW-0022": {
+            "noul": 0.08,
+            "score": 1
+          },
+          "CKW-0023": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0024": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0025": {
+            "noul": 0.95,
+            "score": 4
+          }
+        },
+        "seconds": 1.98935198783875,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0026": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0027": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0028": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0029": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0030": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.40791797637939,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0031": {
+            "noul": 0.02,
+            "score": 2
+          },
+          "CKW-0032": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0033": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0034": {
+            "noul": 0.92,
+            "score": 4
+          },
+          "CKW-0035": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 2.49274587631226,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0036": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0037": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0038": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0039": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0040": {
+            "noul": 0.01,
+            "score": 0
+          }
+        },
+        "seconds": 1.86942505836487,
+        "variant": "baseline"
+      },
+      {
+        "batch_size": 5,
+        "count": 20,
+        "false_negatives": [],
+        "false_positives": [
+          "CKW-0034"
+        ],
+        "input_tokens": 9961,
+        "matches": [
+          "CKW-0021",
+          "CKW-0025",
+          "CKW-0034",
+          "CKW-0037"
+        ],
+        "offset": 20,
+        "output_tokens": 456,
+        "seconds": 7.76172304153442,
+        "spoiler_matches": [
+          "CKW-0034"
+        ],
+        "summary": 1,
+        "variant": "baseline"
+      }
+    ],
+    "single-holdout": [
+      {
+        "scores": {
+          "CKW-0021": {
+            "noul": 0.93,
+            "score": 4
+          }
+        },
+        "seconds": 1.77198314666748,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0022": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.36041593551636,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0023": {
+            "noul": 0.08,
+            "score": 1
+          }
+        },
+        "seconds": 1.20140290260315,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0024": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 0.986166954040527,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0025": {
+            "noul": 0.97,
+            "score": 4
+          }
+        },
+        "seconds": 1.13432312011719,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0026": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.52602100372314,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0027": {
+            "noul": 0.08,
+            "score": 1
+          }
+        },
+        "seconds": 1.34484314918518,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0028": {
+            "noul": 0.03,
+            "score": 1
+          }
+        },
+        "seconds": 1.08530688285828,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0029": {
+            "noul": 0.01,
+            "score": 3
+          }
+        },
+        "seconds": 1.09512710571289,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0030": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.07639098167419,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0031": {
+            "noul": 0.03,
+            "score": 2
+          }
+        },
+        "seconds": 1.10601902008057,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0032": {
+            "noul": 0.01,
+            "score": 0
+          }
+        },
+        "seconds": 1.08692407608032,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0033": {
+            "noul": 0.03,
+            "score": 2
+          }
+        },
+        "seconds": 1.15094399452209,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0034": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.12685894966125,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0035": {
+            "noul": 0.03,
+            "score": 2
+          }
+        },
+        "seconds": 1.06099796295166,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0036": {
+            "noul": 0.01,
+            "score": 0
+          }
+        },
+        "seconds": 1.35838603973389,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0037": {
+            "noul": 0.93,
+            "score": 4
+          }
+        },
+        "seconds": 1.0357518196106,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0038": {
+            "noul": 0.02,
+            "score": 3
+          }
+        },
+        "seconds": 1.25168514251709,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0039": {
+            "noul": 0.08,
+            "score": 2
+          }
+        },
+        "seconds": 1.36251401901245,
+        "variant": "baseline"
+      },
+      {
+        "scores": {
+          "CKW-0040": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.08363699913025,
+        "variant": "baseline"
+      },
+      {
+        "batch_size": 1,
+        "count": 20,
+        "false_negatives": [],
+        "false_positives": [],
+        "input_tokens": 14633,
+        "matches": [
+          "CKW-0021",
+          "CKW-0025",
+          "CKW-0037"
+        ],
+        "offset": 20,
+        "output_tokens": 680,
+        "seconds": 24.2111868858337,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "baseline"
+      }
+    ],
+    "prompt": [
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0002": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0003": {
+            "noul": 0,
+            "score": 2
+          },
+          "CKW-0004": {
+            "noul": 0,
+            "score": 2
+          },
+          "CKW-0005": {
+            "noul": 0,
+            "score": 4
+          }
+        },
+        "seconds": 1.98096799850464,
+        "variant": "prompt"
+      },
+      {
+        "scores": {
+          "CKW-0006": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0007": {
+            "noul": 0,
+            "score": 1
+          },
+          "CKW-0008": {
+            "noul": 0,
+            "score": 1
+          },
+          "CKW-0009": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0010": {
+            "noul": 0,
+            "score": 4
+          }
+        },
+        "seconds": 1.59999799728394,
+        "variant": "prompt"
+      },
+      {
+        "scores": {
+          "CKW-0011": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0012": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0013": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0014": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0015": {
+            "noul": 0,
+            "score": 2
+          }
+        },
+        "seconds": 1.81581401824951,
+        "variant": "prompt"
+      },
+      {
+        "scores": {
+          "CKW-0016": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0017": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0018": {
+            "noul": 0,
+            "score": 3
+          },
+          "CKW-0019": {
+            "noul": 0,
+            "score": 2
+          },
+          "CKW-0020": {
+            "noul": 0,
+            "score": 2
+          }
+        },
+        "seconds": 1.46515703201294,
+        "variant": "prompt"
+      },
+      {
+        "batch_size": 5,
+        "count": 20,
+        "false_negatives": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009"
+        ],
+        "false_positives": [],
+        "input_tokens": 10648,
+        "matches": [],
+        "offset": 0,
+        "output_tokens": 422,
+        "seconds": 6.86424207687378,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "prompt"
+      }
+    ],
+    "low": [
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.18,
+            "score": 3
+          },
+          "CKW-0002": {
+            "noul": 0.05,
+            "score": 3
+          },
+          "CKW-0003": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0004": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0005": {
+            "noul": 0.12,
+            "score": 3
+          }
+        },
+        "seconds": 3.07278203964233,
+        "variant": "low"
+      },
+      {
+        "scores": {
+          "CKW-0006": {
+            "noul": 0.05,
+            "score": 3
+          },
+          "CKW-0007": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0008": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0009": {
+            "noul": 0.18,
+            "score": 3
+          },
+          "CKW-0010": {
+            "noul": 0,
+            "score": 2
+          }
+        },
+        "seconds": 3.12027406692505,
+        "variant": "low"
+      },
+      {
+        "scores": {
+          "CKW-0011": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0012": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0013": {
+            "noul": 0.03,
+            "score": 1
+          },
+          "CKW-0014": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0015": {
+            "noul": 0.01,
+            "score": 0
+          }
+        },
+        "seconds": 3.16949605941772,
+        "variant": "low"
+      },
+      {
+        "scores": {
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0017": {
+            "noul": 0.02,
+            "score": 2
+          },
+          "CKW-0018": {
+            "noul": 0.03,
+            "score": 3
+          },
+          "CKW-0019": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0020": {
+            "noul": 0.02,
+            "score": 1
+          }
+        },
+        "seconds": 2.66433095932007,
+        "variant": "low"
+      },
+      {
+        "batch_size": 5,
+        "count": 20,
+        "false_negatives": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009"
+        ],
+        "false_positives": [],
+        "input_tokens": 9968,
+        "matches": [],
+        "offset": 0,
+        "output_tokens": 1064,
+        "seconds": 12.0289840698242,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "low"
+      }
+    ],
+    "literal": [
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.02,
+            "score": 2
+          },
+          "CKW-0002": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0003": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0004": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0005": {
+            "noul": 0,
+            "score": 0
+          }
+        },
+        "seconds": 2.21618294715881,
+        "variant": "literal"
+      },
+      {
+        "scores": {
+          "CKW-0006": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0007": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0008": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0009": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0010": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 1.42175078392029,
+        "variant": "literal"
+      },
+      {
+        "scores": {
+          "CKW-0011": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0012": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0013": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0014": {
+            "noul": 0,
+            "score": 0
+          },
+          "CKW-0015": {
+            "noul": 0,
+            "score": 0
+          }
+        },
+        "seconds": 1.48943591117859,
+        "variant": "literal"
+      },
+      {
+        "scores": {
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0017": {
+            "noul": 0.92,
+            "score": 3
+          },
+          "CKW-0018": {
+            "noul": 0.08,
+            "score": 3
+          },
+          "CKW-0019": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0020": {
+            "noul": 0.01,
+            "score": 1
+          }
+        },
+        "seconds": 1.4819769859314,
+        "variant": "literal"
+      },
+      {
+        "batch_size": 5,
+        "count": 20,
+        "false_negatives": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009"
+        ],
+        "false_positives": [
+          "CKW-0017"
+        ],
+        "input_tokens": 10056,
+        "matches": [
+          "CKW-0017"
+        ],
+        "offset": 0,
+        "output_tokens": 456,
+        "seconds": 6.61147403717041,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "literal"
+      }
+    ],
+    "diagnostic": [
+      {
+        "diagnostic": {
+          "answers": [
+            {
+              "explanation": "映画の感想で好意的だが、ネタバレ注意や結末の記述があるため条件不一致。",
+              "id": "CKW-0001",
+              "match_probability": 0,
+              "relevance": 4
+            },
+            {
+              "explanation": "映画の感想で好意的だが、終盤の展開や結末の記述があり、ネタバレを含まない条件に反する。",
+              "id": "CKW-0002",
+              "match_probability": 0,
+              "relevance": 4
+            },
+            {
+              "explanation": "映画の感想で好意的だが、物語内容の具体的描写がありネタバレを含まない条件に反する。",
+              "id": "CKW-0005",
+              "match_probability": 0,
+              "relevance": 4
+            },
+            {
+              "explanation": "映画の感想で好意的だが、物語内容の具体的描写がありネタバレを含まない条件に反する。",
+              "id": "CKW-0009",
+              "match_probability": 0,
+              "relevance": 4
+            },
+            {
+              "explanation": "映画の感想で好意的だが、ネタバレ注意や結末の記述があるため条件不一致。",
+              "id": "CKW-0018",
+              "match_probability": 0,
+              "relevance": 4
+            }
+          ]
+        }
+      },
+      {
+        "scores": {
+          "CKW-0001": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0002": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0005": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0009": {
+            "noul": 0,
+            "score": 4
+          },
+          "CKW-0018": {
+            "noul": 0,
+            "score": 4
+          }
+        },
+        "seconds": 4.00050687789917,
+        "variant": "diagnostic"
+      },
+      {
+        "batch_size": 5,
+        "count": "5",
+        "false_negatives": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009"
+        ],
+        "false_positives": [],
+        "input_tokens": 2606,
+        "matches": [],
+        "offset": 0,
+        "output_tokens": 288,
+        "seconds": 4.00078415870667,
+        "spoiler_matches": [],
+        "summary": 1,
+        "variant": "diagnostic"
+      }
+    ]
+  },
+  "parallel_comparison": {
+    "scope": "API evaluation only; same CKW-0001 through CKW-0050; sequential comparison, one run per setting; no embedding, database, or rendering included",
+    "runs": [
+      {
+        "batch_size": 5,
+        "calls": [
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0001",
+              "CKW-0002",
+              "CKW-0003",
+              "CKW-0004",
+              "CKW-0005"
+            ],
+            "input_bytes": 9580,
+            "seconds": 3.83665609359741,
+            "start": 0.00332808494567871
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0006",
+              "CKW-0007",
+              "CKW-0008",
+              "CKW-0009",
+              "CKW-0010"
+            ],
+            "input_bytes": 9999,
+            "seconds": 2.64567494392395,
+            "start": 0.00340795516967773
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0011",
+              "CKW-0012",
+              "CKW-0013",
+              "CKW-0014",
+              "CKW-0015"
+            ],
+            "input_bytes": 9646,
+            "seconds": 2.62974095344543,
+            "start": 0.00369811058044434
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0016",
+              "CKW-0017",
+              "CKW-0018",
+              "CKW-0019",
+              "CKW-0020"
+            ],
+            "input_bytes": 9939,
+            "seconds": 2.79633808135986,
+            "start": 0.00398802757263184
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0021",
+              "CKW-0022",
+              "CKW-0023",
+              "CKW-0024",
+              "CKW-0025"
+            ],
+            "input_bytes": 9490,
+            "seconds": 3.23792195320129,
+            "start": 0.00509810447692871
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0031",
+              "CKW-0032",
+              "CKW-0033",
+              "CKW-0034",
+              "CKW-0035"
+            ],
+            "input_bytes": 9685,
+            "seconds": 2.15032291412354,
+            "start": 0.00560808181762695
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0036",
+              "CKW-0037",
+              "CKW-0038",
+              "CKW-0039",
+              "CKW-0040"
+            ],
+            "input_bytes": 9921,
+            "seconds": 2.90766406059265,
+            "start": 0.00584816932678223
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0026",
+              "CKW-0027",
+              "CKW-0028",
+              "CKW-0029",
+              "CKW-0030"
+            ],
+            "input_bytes": 10020,
+            "seconds": 3.08812212944031,
+            "start": 0.00602817535400391
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0041",
+              "CKW-0042",
+              "CKW-0043",
+              "CKW-0044",
+              "CKW-0045"
+            ],
+            "input_bytes": 9562,
+            "seconds": 2.41202187538147,
+            "start": 0.00648808479309082
+          },
+          {
+            "count": 5,
+            "ids": [
+              "CKW-0046",
+              "CKW-0047",
+              "CKW-0048",
+              "CKW-0049",
+              "CKW-0050"
+            ],
+            "input_bytes": 9969,
+            "seconds": 2.78960490226746,
+            "start": 0.00713801383972168
+          }
+        ],
+        "concurrency": 10,
+        "count": 50,
+        "false_negatives": [
+          "CKW-0009"
+        ],
+        "false_positives": [
+          "CKW-0018"
+        ],
+        "input_tokens": 24859,
+        "matches": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0018",
+          "CKW-0021",
+          "CKW-0025",
+          "CKW-0037",
+          "CKW-0041"
+        ],
+        "observed_concurrency": 10,
+        "requests": 10,
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.97,
+            "score": 4
+          },
+          "CKW-0002": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0003": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0004": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0005": {
+            "noul": 0.95,
+            "score": 4
+          },
+          "CKW-0006": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0007": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0008": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0009": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0010": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0011": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0012": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0013": {
+            "noul": 0.03,
+            "score": 1
+          },
+          "CKW-0014": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0015": {
+            "noul": 0,
+            "score": 1
+          },
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0017": {
+            "noul": 0.02,
+            "score": 2
+          },
+          "CKW-0018": {
+            "noul": 0.95,
+            "score": 4
+          },
+          "CKW-0019": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0020": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0021": {
+            "noul": 0.97,
+            "score": 4
+          },
+          "CKW-0022": {
+            "noul": 0.08,
+            "score": 1
+          },
+          "CKW-0023": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0024": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0025": {
+            "noul": 0.95,
+            "score": 4
+          },
+          "CKW-0026": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0027": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0028": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0029": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0030": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0031": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0032": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0033": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0034": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0035": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0036": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0037": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0038": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0039": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0040": {
+            "noul": 0.02,
+            "score": 0
+          },
+          "CKW-0041": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0042": {
+            "noul": 0.02,
+            "score": 4
+          },
+          "CKW-0043": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0044": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0045": {
+            "noul": 0.01,
+            "score": 4
+          },
+          "CKW-0046": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0047": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0048": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0049": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0050": {
+            "noul": 0.02,
+            "score": 3
+          }
+        },
+        "seconds": 3.84485697746277,
+        "spoiler_matches": [
+          "CKW-0018"
+        ]
+      },
+      {
+        "batch_size": 1,
+        "calls": [
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0001"
+            ],
+            "input_bytes": 3205,
+            "seconds": 2.43680214881897,
+            "start": 0.00279116630554199
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0002"
+            ],
+            "input_bytes": 3483,
+            "seconds": 1.53214621543884,
+            "start": 0.00297117233276367
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0003"
+            ],
+            "input_bytes": 3190,
+            "seconds": 1.4585108757019,
+            "start": 0.0029911994934082
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0004"
+            ],
+            "input_bytes": 3573,
+            "seconds": 2.35663485527039,
+            "start": 0.00335121154785156
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0006"
+            ],
+            "input_bytes": 3516,
+            "seconds": 1.5310389995575,
+            "start": 0.00464105606079102
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0007"
+            ],
+            "input_bytes": 3208,
+            "seconds": 1.69271993637085,
+            "start": 0.00483107566833496
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0005"
+            ],
+            "input_bytes": 3097,
+            "seconds": 1.42001605033875,
+            "start": 0.00491118431091309
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0008"
+            ],
+            "input_bytes": 3555,
+            "seconds": 1.77742600440979,
+            "start": 0.00536108016967773
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0009"
+            ],
+            "input_bytes": 3154,
+            "seconds": 2.58269786834717,
+            "start": 0.00613117218017578
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0010"
+            ],
+            "input_bytes": 3534,
+            "seconds": 2.228924036026,
+            "start": 0.00643110275268555
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0015"
+            ],
+            "input_bytes": 3211,
+            "seconds": 1.18457794189453,
+            "start": 1.42538118362427
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0013"
+            ],
+            "input_bytes": 3160,
+            "seconds": 1.52281093597412,
+            "start": 1.46197104454041
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0012"
+            ],
+            "input_bytes": 3561,
+            "seconds": 1.12427186965942,
+            "start": 1.53564119338989
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0016"
+            ],
+            "input_bytes": 3495,
+            "seconds": 1.16024494171143,
+            "start": 1.53638100624084
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0017"
+            ],
+            "input_bytes": 3172,
+            "seconds": 1.09460997581482,
+            "start": 1.6986711025238
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0018"
+            ],
+            "input_bytes": 3489,
+            "seconds": 1.11111116409302,
+            "start": 1.78389120101929
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0020"
+            ],
+            "input_bytes": 3588,
+            "seconds": 1.0878438949585,
+            "start": 2.23661112785339
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0014"
+            ],
+            "input_bytes": 3528,
+            "seconds": 1.03320693969727,
+            "start": 2.36099100112915
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0011"
+            ],
+            "input_bytes": 3154,
+            "seconds": 1.127357006073,
+            "start": 2.44049119949341
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0019"
+            ],
+            "input_bytes": 3163,
+            "seconds": 1.19138288497925,
+            "start": 2.58998107910156
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0025"
+            ],
+            "input_bytes": 3130,
+            "seconds": 1.1140251159668,
+            "start": 2.61063098907471
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0022"
+            ],
+            "input_bytes": 3474,
+            "seconds": 1.49658107757568,
+            "start": 2.66071105003357
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0026"
+            ],
+            "input_bytes": 3576,
+            "seconds": 1.33882808685303,
+            "start": 2.69740104675293
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0027"
+            ],
+            "input_bytes": 3205,
+            "seconds": 1.84282612800598,
+            "start": 2.79392099380493
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0028"
+            ],
+            "input_bytes": 3549,
+            "seconds": 1.14186692237854,
+            "start": 2.89582109451294
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0023"
+            ],
+            "input_bytes": 3190,
+            "seconds": 1.15577220916748,
+            "start": 2.98545098304749
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0030"
+            ],
+            "input_bytes": 3537,
+            "seconds": 1.40203189849854,
+            "start": 3.32527112960815
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0024"
+            ],
+            "input_bytes": 3489,
+            "seconds": 1.53071308135986,
+            "start": 3.39490103721619
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0021"
+            ],
+            "input_bytes": 3175,
+            "seconds": 1.31487703323364,
+            "start": 3.56853103637695
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0035"
+            ],
+            "input_bytes": 3196,
+            "seconds": 1.48580098152161,
+            "start": 3.72558116912842
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0029"
+            ],
+            "input_bytes": 3121,
+            "seconds": 1.13336300849915,
+            "start": 3.782231092453
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0036"
+            ],
+            "input_bytes": 3522,
+            "seconds": 1.10199213027954,
+            "start": 4.03703117370605
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0038"
+            ],
+            "input_bytes": 3489,
+            "seconds": 1.16833901405334,
+            "start": 4.03841114044189
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0033"
+            ],
+            "input_bytes": 3163,
+            "seconds": 1.08976101875305,
+            "start": 4.14248108863831
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0032"
+            ],
+            "input_bytes": 3528,
+            "seconds": 1.0246250629425,
+            "start": 4.15807104110718
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0037"
+            ],
+            "input_bytes": 3142,
+            "seconds": 1.46494102478027,
+            "start": 4.63749098777771
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0040"
+            ],
+            "input_bytes": 3564,
+            "seconds": 1.38648986816406,
+            "start": 4.72810101509094
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0031"
+            ],
+            "input_bytes": 3226,
+            "seconds": 1.18110609054565,
+            "start": 4.88421106338501
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0039"
+            ],
+            "input_bytes": 3172,
+            "seconds": 1.33985495567322,
+            "start": 4.91637110710144
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0034"
+            ],
+            "input_bytes": 3540,
+            "seconds": 1.63830780982971,
+            "start": 4.92642116546631
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0046"
+            ],
+            "input_bytes": 3492,
+            "seconds": 1.05982995033264,
+            "start": 5.14014101028442
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0042"
+            ],
+            "input_bytes": 3534,
+            "seconds": 1.16002893447876,
+            "start": 5.18350100517273
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0048"
+            ],
+            "input_bytes": 3519,
+            "seconds": 1.2732207775116,
+            "start": 5.20777106285095
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0045"
+            ],
+            "input_bytes": 3154,
+            "seconds": 1.50399494171143,
+            "start": 5.21188116073608
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0043"
+            ],
+            "input_bytes": 3163,
+            "seconds": 1.62834501266479,
+            "start": 5.23267102241516
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0041"
+            ],
+            "input_bytes": 3172,
+            "seconds": 1.95385193824768,
+            "start": 6.06620121002197
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0047"
+            ],
+            "input_bytes": 3229,
+            "seconds": 1.03175902366638,
+            "start": 6.10328102111816
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0050"
+            ],
+            "input_bytes": 3540,
+            "seconds": 1.12012386322021,
+            "start": 6.1153609752655
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0049"
+            ],
+            "input_bytes": 3157,
+            "seconds": 1.17353105545044,
+            "start": 6.25697112083435
+          },
+          {
+            "count": 1,
+            "ids": [
+              "CKW-0044"
+            ],
+            "input_bytes": 3507,
+            "seconds": 1.05449199676514,
+            "start": 6.56550097465515
+          }
+        ],
+        "concurrency": 10,
+        "count": 50,
+        "false_negatives": [],
+        "false_positives": [],
+        "input_tokens": 36539,
+        "matches": [
+          "CKW-0001",
+          "CKW-0005",
+          "CKW-0009",
+          "CKW-0021",
+          "CKW-0025",
+          "CKW-0037",
+          "CKW-0041"
+        ],
+        "observed_concurrency": 10,
+        "requests": 50,
+        "scores": {
+          "CKW-0001": {
+            "noul": 0.86,
+            "score": 4
+          },
+          "CKW-0002": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0003": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0004": {
+            "noul": 0.02,
+            "score": 1
+          },
+          "CKW-0005": {
+            "noul": 0.96,
+            "score": 4
+          },
+          "CKW-0006": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0007": {
+            "noul": 0.08,
+            "score": 1
+          },
+          "CKW-0008": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0009": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0010": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0011": {
+            "noul": 0.08,
+            "score": 2
+          },
+          "CKW-0012": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0013": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0014": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0015": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0016": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0017": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0018": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0019": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0020": {
+            "noul": 0.03,
+            "score": 1
+          },
+          "CKW-0021": {
+            "noul": 0.97,
+            "score": 4
+          },
+          "CKW-0022": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0023": {
+            "noul": 0.08,
+            "score": 1
+          },
+          "CKW-0024": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0025": {
+            "noul": 0.98,
+            "score": 4
+          },
+          "CKW-0026": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0027": {
+            "noul": 0.03,
+            "score": 1
+          },
+          "CKW-0028": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0029": {
+            "noul": 0.03,
+            "score": 3
+          },
+          "CKW-0030": {
+            "noul": 0.01,
+            "score": 2
+          },
+          "CKW-0031": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0032": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0033": {
+            "noul": 0.03,
+            "score": 3
+          },
+          "CKW-0034": {
+            "noul": 0.01,
+            "score": 3
+          },
+          "CKW-0035": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0036": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0037": {
+            "noul": 0.93,
+            "score": 4
+          },
+          "CKW-0038": {
+            "noul": 0.03,
+            "score": 3
+          },
+          "CKW-0039": {
+            "noul": 0.08,
+            "score": 2
+          },
+          "CKW-0040": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0041": {
+            "noul": 0.97,
+            "score": 4
+          },
+          "CKW-0042": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0043": {
+            "noul": 0.08,
+            "score": 2
+          },
+          "CKW-0044": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0045": {
+            "noul": 0.01,
+            "score": 0
+          },
+          "CKW-0046": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0047": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0048": {
+            "noul": 0.01,
+            "score": 1
+          },
+          "CKW-0049": {
+            "noul": 0.03,
+            "score": 2
+          },
+          "CKW-0050": {
+            "noul": 0.01,
+            "score": 2
+          }
+        },
+        "seconds": 8.02434015274048,
+        "spoiler_matches": []
+      }
+    ],
+    "applied_settings": {
+      "jev_batch_size": 1,
+      "jev_concurrency": 10
+    }
+  }
+}

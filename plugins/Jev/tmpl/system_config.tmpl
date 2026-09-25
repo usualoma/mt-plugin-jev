@@ -47,6 +47,12 @@
     <option value="0"<mt:unless name="jev_header_default"> selected</mt:unless>>OFF</option>
   </select>
 </mtapp:setting>
+<mtapp:setting id="jev_log_usage" label="<__trans phrase="Log search token usage">" hint="<__trans phrase="Write one activity log entry per completed natural-language search. Search text and document content are not logged.">" show_hint="1">
+  <select id="jev_log_usage" name="jev_log_usage" class="form-control form-select">
+    <option value="1"<mt:if name="jev_log_usage"> selected</mt:if>>ON</option>
+    <option value="0"<mt:unless name="jev_log_usage"> selected</mt:unless>>OFF</option>
+  </select>
+</mtapp:setting>
 <mtapp:setting id="jev_index_help" label="<__trans phrase="Search index">">
   <p><__trans phrase="After saving the OpenAI key, run the following command from the MT directory. Content is sent to OpenAI and API usage is billed."></p>
   <pre>perl tools/Jev/build-index</pre>

@@ -1,0 +1,192 @@
+{
+   "apis_mocked" : true,
+   "backend" : "SQLite",
+   "batch_size" : 5,
+   "candidate_limit" : 50,
+   "concurrency" : 5,
+   "dimensions" : 3072,
+   "documents" : 1000,
+   "runs" : [
+      {
+         "instrumented" : false,
+         "metrics" : {},
+         "run" : 0,
+         "total_seconds" : 0.665709959052037,
+         "variant" : "current"
+      },
+      {
+         "instrumented" : true,
+         "metrics" : {
+            "candidate_fields" : {
+               "calls" : 50,
+               "exclusive_seconds" : 0.00304166623391211,
+               "inclusive_seconds" : 0.00304166623391211
+            },
+            "candidate_selection_total" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0363682874594815,
+               "inclusive_seconds" : 0.522955292020924
+            },
+            "document_preparation" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.084187954897061,
+               "inclusive_seconds" : 0.084187954897061
+            },
+            "embedding_db_load" : {
+               "calls" : 10,
+               "exclusive_seconds" : 0.0340253760223277,
+               "inclusive_seconds" : 0.0340253760223277
+            },
+            "entry_db_iteration" : {
+               "calls" : 1001,
+               "exclusive_seconds" : 0.100883894774597,
+               "inclusive_seconds" : 0.100883894774597
+            },
+            "jev_local_preparation_and_fork" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0101825829478912,
+               "inclusive_seconds" : 0.0101825829478912
+            },
+            "query_embedding_mock" : {
+               "calls" : 1,
+               "exclusive_seconds" : 6.56669726595283e-05,
+               "inclusive_seconds" : 6.56669726595283e-05
+            },
+            "vector_decode" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.164846784900874,
+               "inclusive_seconds" : 0.164846784900874
+            },
+            "vector_dot_product" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.0881114528165199,
+               "inclusive_seconds" : 0.0881114528165199
+            },
+            "vector_validation_normalization" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.00124162499560043,
+               "inclusive_seconds" : 0.00124162499560043
+            }
+         },
+         "run" : 1,
+         "total_seconds" : 0.6878039999865,
+         "variant" : "current"
+      },
+      {
+         "instrumented" : true,
+         "metrics" : {
+            "candidate_fields" : {
+               "calls" : 50,
+               "exclusive_seconds" : 0.003219791688025,
+               "inclusive_seconds" : 0.003219791688025
+            },
+            "candidate_selection_total" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0360047407448292,
+               "inclusive_seconds" : 0.507071499945596
+            },
+            "document_preparation" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.0821477104327641,
+               "inclusive_seconds" : 0.0821477104327641
+            },
+            "embedding_db_load" : {
+               "calls" : 10,
+               "exclusive_seconds" : 0.0294600410852581,
+               "inclusive_seconds" : 0.0294600410852581
+            },
+            "entry_db_iteration" : {
+               "calls" : 1001,
+               "exclusive_seconds" : 0.0887905525160022,
+               "inclusive_seconds" : 0.0887905525160022
+            },
+            "jev_local_preparation_and_fork" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0105585829587653,
+               "inclusive_seconds" : 0.0105585829587653
+            },
+            "query_embedding_mock" : {
+               "calls" : 1,
+               "exclusive_seconds" : 6.9500005338341e-05,
+               "inclusive_seconds" : 6.9500005338341e-05
+            },
+            "vector_decode" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.166773336823098,
+               "inclusive_seconds" : 0.166773336823098
+            },
+            "vector_dot_product" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.0887763266800903,
+               "inclusive_seconds" : 0.0887763266800903
+            },
+            "vector_validation_normalization" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0012709170114249,
+               "inclusive_seconds" : 0.0012709170114249
+            }
+         },
+         "run" : 2,
+         "total_seconds" : 0.670314916991629,
+         "variant" : "current"
+      },
+      {
+         "instrumented" : true,
+         "metrics" : {
+            "candidate_fields" : {
+               "calls" : 50,
+               "exclusive_seconds" : 0.00314124923897907,
+               "inclusive_seconds" : 0.00314124923897907
+            },
+            "candidate_selection_total" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0364741779631004,
+               "inclusive_seconds" : 0.510508833976928
+            },
+            "document_preparation" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.0822295694961213,
+               "inclusive_seconds" : 0.0822295694961213
+            },
+            "embedding_db_load" : {
+               "calls" : 10,
+               "exclusive_seconds" : 0.0298620410030708,
+               "inclusive_seconds" : 0.0298620410030708
+            },
+            "entry_db_iteration" : {
+               "calls" : 1001,
+               "exclusive_seconds" : 0.0900568093056791,
+               "inclusive_seconds" : 0.0900568093056791
+            },
+            "jev_local_preparation_and_fork" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.0105345000047237,
+               "inclusive_seconds" : 0.0105345000047237
+            },
+            "query_embedding_mock" : {
+               "calls" : 1,
+               "exclusive_seconds" : 7.0250011049211e-05,
+               "inclusive_seconds" : 7.0250011049211e-05
+            },
+            "vector_decode" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.168087132798973,
+               "inclusive_seconds" : 0.168087132798973
+            },
+            "vector_dot_product" : {
+               "calls" : 1000,
+               "exclusive_seconds" : 0.0887863131356426,
+               "inclusive_seconds" : 0.0887863131356426
+            },
+            "vector_validation_normalization" : {
+               "calls" : 1,
+               "exclusive_seconds" : 0.00126679101958871,
+               "inclusive_seconds" : 0.00126679101958871
+            }
+         },
+         "run" : 3,
+         "total_seconds" : 0.683336207992397,
+         "variant" : "current"
+      }
+   ]
+}

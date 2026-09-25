@@ -32,6 +32,8 @@ sub caught { my ($code) = @_; local $@; eval { $code->() }; $@ }
 my ($client, $ua) = client(body());
 is_deeply $client->embed('導入後の困難'), [1, (0) x 3071], 'full vector returned';
 is $client->usage->{prompt_tokens}, 15, 'usage available';
+is_deeply $client->token_usage, {requests => 1, input_tokens => 15, output_tokens => 0,
+    cached_input_tokens => 0, total_tokens => 15}, 'embedding prompt tokens normalized';
 my $request = $ua->{requests}[0];
 is $request->uri, 'https://api.openai.com/v1/embeddings', 'fixed official URL';
 is $request->header('Authorization'), 'Bearer unit-secret', 'authentication';

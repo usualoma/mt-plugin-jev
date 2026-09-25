@@ -9,6 +9,8 @@ use MT::Plugin::Jev::Content;
 use MT::Plugin::Jev::Embedding;
 use MT::Plugin::Jev::OpenAIClient;
 use MT::Plugin::Jev::OpenAIEvaluator;
+use MT::Plugin::Jev::Usage;
+use JSON::PP ();
 
 sub run {
     my ($class, $app, $config, $type, $condition, $original) = @_;
@@ -20,6 +22,7 @@ sub run {
             concurrency => $config->{jev_concurrency});
     my $deadline = time + $client->search_timeout;
     my $api = $app->registry('search_apis')->{$type};
+    my $openai = MT::Plugin::Jev::OpenAIClient->new(api_key => $config->{openai_api_key});
     my $original_iter = \&MT::CMS::Search::incremental_iter;
 
     # Request-local adapters preserve core's scope and renderer, including
@@ -28,17 +31,38 @@ sub run {
     local *MT::CMS::Search::make_terms = sub { return [] };
     local *MT::CMS::Search::incremental_iter = sub {
         my $iter = $original_iter->(@_);
-        return _matching_iter($app, $iter, $client, $deadline, $api, $type, $condition, $config);
+        return _matching_iter($app, $iter, $client, $deadline, $api, $type, $condition, $config, $openai);
     };
-    return $original->($app);
+    my $result = $original->($app);
+    _log_usage($app, $config, $type, $openai, $client) if $config->{jev_log_usage} && $result;
+    return $result;
+}
+
+sub _log_usage {
+    my ($app, $config, $type, $openai, $client) = @_;
+    my $embedding = $openai->token_usage;
+    my $evaluation = $client->token_usage;
+    my $total = MT::Plugin::Jev::Usage->new;
+    $total->add($_) for ($embedding, $evaluation);
+    my $record = {
+        object_type => $type,
+        embedding => {provider => 'OpenAI', model => MT::Plugin::Jev::OpenAIClient::MODEL(), %$embedding},
+        evaluation => {provider => $client->provider,
+            model => $config->{jev_evaluator} eq 'openai' ? $config->{openai_evaluation_model} : $config->{jev_model},
+            %$evaluation},
+        total => $total->as_hash,
+    };
+    MT->log({category => 'jev_usage',
+        blog_id => $app->blog ? $app->blog->id : 0,
+        author_id => $app->user ? $app->user->id : 0,
+        message => 'Jev search token usage: ' . JSON::PP->new->canonical->encode($record)});
 }
 
 sub _matching_iter {
-    my ($app, $iter, $client, $deadline, $api, $type, $condition, $config) = @_;
+    my ($app, $iter, $client, $deadline, $api, $type, $condition, $config, $openai) = @_;
     my (@top, $query, $eligible);
     my $check = $app->handler_to_coderef($api->{perm_check});
     my $embedding = MT->model('jev_embedding');
-    my $openai = MT::Plugin::Jev::OpenAIClient->new(api_key => $config->{openai_api_key});
     while (1) {
         my @objects;
         while (@objects < 100) {

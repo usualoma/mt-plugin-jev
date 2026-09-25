@@ -6,6 +6,7 @@ use JSON::PP ();
 use HTTP::Request;
 use Time::HiRes qw(time);
 use MT::Plugin::Jev;
+use MT::Plugin::Jev::Usage;
 
 use constant ENDPOINT => 'https://api.openai.com/v1/embeddings';
 use constant MODEL => 'text-embedding-3-large';
@@ -22,7 +23,7 @@ sub new {
         );
         $args{ua}->env_proxy;
     }
-    return bless \%args, $class;
+    return bless {%args, token_usage => MT::Plugin::Jev::Usage->new}, $class;
 }
 
 sub embed {
@@ -58,9 +59,13 @@ sub embed {
     }
     MT::Plugin::Jev::fail($invalid) unless $norm > 0;
     $self->{usage} = $data->{usage};
+    my $usage = ref $data->{usage} eq 'HASH' ? $data->{usage} : {};
+    $self->{token_usage}->add({requests => 1, input_tokens => $usage->{prompt_tokens},
+        output_tokens => 0, cached_input_tokens => 0});
     return $vector;
 }
 
 sub usage { $_[0]{usage} }
+sub token_usage { $_[0]{token_usage}->as_hash }
 
 1;

@@ -23,6 +23,7 @@ like $app->content, qr/\*{8}9876/, 'OpenAI suffix displayed';
 ok $app->wq_find('#openai_api_key')->attr('disabled'), 'OpenAI key unchanged';
 is $app->wq_find('#jev_candidate_limit')->attr('value'), 50, 'candidate default';
 is $app->wq_find('#jev_concurrency')->attr('value'), 5, 'existing configuration receives concurrency default';
+is $app->wq_find('#jev_log_usage option[selected]')->attr('value'), 0, 'token usage logging defaults to OFF';
 is $app->wq_find('#jev_evaluator option[selected]')->attr('value'), 'jev', 'existing configuration keeps Jev';
 is $app->wq_find('#openai_evaluation_model')->attr('value'), 'gpt-5.4-mini', 'OpenAI evaluation default model';
 ok $app->wq_find('#jev_api_key')->attr('disabled'), 'unchanged key is not submitted';
@@ -41,7 +42,7 @@ sub settings_form_id {
 }
 my $form_id = settings_form_id();
 ok $form_id, 'settings use the standard plugin form';
-$app->post_form_ok($form_id, {jev_threshold => '0.7', jev_header_default => '0', jev_concurrency => '10'});
+$app->post_form_ok($form_id, {jev_threshold => '0.7', jev_header_default => '0', jev_concurrency => '10', jev_log_usage => '1'});
 ok !$app->generic_error, 'save without key succeeds' or diag $app->generic_error;
 MT->request('plugin_config.Jev', undef);
 is $plugin->get_config_value('jev_api_key', 'system'), $key, 'unchanged API key preserved';
@@ -49,9 +50,11 @@ is $plugin->get_config_value('openai_api_key', 'system'), 'openai-secret-9876', 
 is $plugin->get_config_value('jev_threshold', 'system'), 0.7, 'threshold saved';
 is $plugin->get_config_value('jev_header_default', 'system'), 0, 'OFF saved';
 is MT::Plugin::Jev::config()->{jev_concurrency}, 10, 'saved concurrency reaches search configuration';
+is MT::Plugin::Jev::config()->{jev_log_usage}, 1, 'token usage logging can be enabled';
 
 $app->get_ok({__mode => 'cfg_plugins'});
 is $app->wq_find('#jev_concurrency')->attr('value'), 10, 'concurrency persists after reload';
+is $app->wq_find('#jev_log_usage option[selected]')->attr('value'), 1, 'usage logging persists after reload';
 is $app->wq_find('#jev_header_default option[selected]')->attr('value'), 0, 'OFF remains selected after reload';
 is $app->wq_find('script[data-jev-header]')->attr('data-default'), 0, 'header receives OFF default';
 $form_id = settings_form_id();
@@ -68,10 +71,11 @@ is $plugin->get_config_value('openai_api_key', 'system'), 'new-openai-secret-432
 is $plugin->get_config_value('jev_header_default', 'system'), 0, 'key update preserves OFF';
 
 $app->get_ok({__mode => 'cfg_plugins'});
-$app->post_form_ok(settings_form_id(), {jev_header_default => '1', jev_concurrency => '1'});
+$app->post_form_ok(settings_form_id(), {jev_header_default => '1', jev_concurrency => '1', jev_log_usage => '0'});
 MT->request('plugin_config.Jev', undef);
 is $plugin->get_config_value('jev_header_default', 'system'), 1, 'ON can be restored';
 is MT::Plugin::Jev::config()->{jev_concurrency}, 1, 'sequential mode can be saved';
+is MT::Plugin::Jev::config()->{jev_log_usage}, 0, 'token usage logging can be disabled again';
 
 $app->get_ok({__mode => 'cfg_plugins'});
 $form = $app->form(settings_form_id());
@@ -89,6 +93,7 @@ subtest 'invalid settings rejected before saving' => sub {
         {jev_model => ''}, {jev_model => "jev\nmodel"}, {jev_api_key => "key\nHeader: value"},
         {openai_api_key => "key\nInjected: header"}, {jev_candidate_limit => 0}, {jev_candidate_limit => 501}, {jev_candidate_limit => '1.1'},
         {jev_header_default => '2'}, {jev_header_default => 'true'},
+        {jev_log_usage => '2'}, {jev_log_usage => 'true'}, {jev_log_usage => ''},
         {jev_evaluator => 'other'}, {jev_evaluator => ''}, {jev_evaluator => undef},
         {openai_evaluation_model => ''}, {openai_evaluation_model => "bad\nmodel"},
         map { +{jev_concurrency => $_} } (undef, '', 0, -1, 11, '1.5', 'NaN', 'Inf'),

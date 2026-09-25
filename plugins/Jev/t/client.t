@@ -62,6 +62,9 @@ subtest 'native contract, Unicode and identity' => sub {
     is scalar @{$body->{questions}{entry_1_score}{criteria}}, 5, 'five descriptive levels';
     like $body->{questions}{entry_1_match}{instructions}, qr/state.documents.entry_1/, 'target is explicit in instructions';
     is $client->input_tokens, 123, 'usage available without logging content';
+    is_deeply $client->token_usage, {requests => 1, input_tokens => 123,
+        output_tokens => undef, cached_input_tokens => undef, total_tokens => undef},
+        'unreported output and cache usage remain unknown';
     is $body->{model}, 'jev-latest', 'model sent';
 };
 
