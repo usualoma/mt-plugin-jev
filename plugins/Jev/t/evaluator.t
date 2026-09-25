@@ -60,6 +60,8 @@ subtest 'Responses API contract, Unicode and shared search result shape' => sub 
     my $body = $json->decode($request->content);
     my $input = JSON::PP->new->decode($body->{input});
     is $body->{model}, 'gpt-5.4-mini', 'configured model';
+    is $body->{temperature}, 0, 'GPT-5.4 mini uses minimum sampling temperature';
+    is_deeply $body->{reasoning}, {effort => 'none'}, 'sampling uses compatible reasoning mode';
     is $input->{search_condition}, '料金への言及がない記事', 'Japanese condition round trips';
     is $input->{documents}{entry_1}[0]{value}, '料金には触れていません。', 'full Japanese content round trips';
     like $body->{instructions}, qr/ALL supplied fields/, 'absence checks cover full document';
@@ -73,6 +75,24 @@ subtest 'Responses API contract, Unicode and shared search result shape' => sub 
     ok !$schema->{additionalProperties}, 'no extra top-level fields';
     is_deeply $schema->{properties}{answers}{items}{required}, [qw(id match_probability relevance)], 'all answer fields required';
     is $ua->{timeouts}[0], 60, 'OpenAI request budget extended';
+};
+
+subtest 'sampling settings cover mini snapshots without changing custom model requests' => sub {
+    for my $model ('gpt-5.4-mini-2026-03-17', 'gpt-5-mini', 'gpt-4.1-mini') {
+        my $ua = Local::EvaluationUA->new([\&reply_to_request]);
+        my $client = MT::Plugin::Jev::OpenAIEvaluator->new(
+            ua => $ua, api_key => 'openai-secret', model => $model);
+        $client->evaluate_batch(condition => 'query', candidates => [candidate('entry_1')]);
+        my $body = $json->decode($ua->{requests}[0]->content);
+        is $body->{model}, $model, 'model selection preserved';
+        if ($model eq 'gpt-5.4-mini-2026-03-17') {
+            is $body->{temperature}, 0, 'dated mini snapshot also uses zero temperature';
+            is_deeply $body->{reasoning}, {effort => 'none'}, 'dated snapshot uses compatible reasoning mode';
+        } else {
+            ok !exists $body->{temperature}, 'temperature omitted for other models';
+            ok !exists $body->{reasoning}, 'reasoning omitted for other models';
+        }
+    }
 };
 
 subtest 'refusals, incomplete and malformed responses fail instead of dropping matches' => sub {

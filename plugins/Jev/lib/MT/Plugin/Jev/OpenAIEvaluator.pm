@@ -13,8 +13,13 @@ sub retryable_status { $_[1] == 429 || $_[1] >= 500 && $_[1] <= 599 }
 
 sub _payload {
     my ($self, $condition, $documents) = @_;
+    # Sampling controls require non-reasoning mode on GPT-5.4 mini.
+    # Do not send them to custom models that may reject these parameters.
+    my %sampling = ($self->{model} // '') =~ /\Agpt-5\.4-mini(?:-\d{4}-\d{2}-\d{2})?\z/
+        ? (temperature => 0, reasoning => {effort => 'none'}) : ();
     return $self->{json}->encode({
         model => $self->{model}, store => JSON::PP::false,
+        %sampling,
         max_output_tokens => 8192, truncation => 'disabled',
         instructions => join(' ',
             'Evaluate each document independently against the entire search_condition.',
