@@ -1,7 +1,7 @@
 id: Jev
 key: Jev
 name: Jev
-version: 0.2.2
+version: 0.2.3
 schema_version: 0.01
 object_types:
   jev_embedding: MT::Plugin::Jev::Embedding
@@ -95,6 +95,7 @@ l10n_lexicon:
     'OpenAI could not be reached.': 'OpenAIに接続できませんでした。'
     'OpenAI returned HTTP [_1].': 'OpenAIがHTTP [_1]を返しました。'
     'OpenAI embedding input has [_1] tokens; the maximum is [_2].': 'OpenAIのembedding入力は[_1]トークンです。上限は[_2]トークンです。'
+    'OpenAI embedding input exceeds the maximum of [_1] tokens.': 'OpenAIのembedding入力が上限の[_1]トークンを超えています。'
     'OpenAI returned an invalid embedding.': 'OpenAIのembeddingの応答が不正です。'
     'Invalid stored embedding. Rebuild the search index.': '保存されたembeddingが不正です。検索用データを再生成してください。'
     'Enter text to generate an embedding.': 'embeddingを生成するテキストを入力してください。'

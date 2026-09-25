@@ -46,6 +46,8 @@ no warnings 'redefine';
     die 'deliberate failure' if $ENV{JEV_FAIL};
     if ($ENV{JEV_JA_ERROR}) {
         MT->instance->set_language('ja');
+        MT::Plugin::Jev::fail('OpenAI embedding input exceeds the maximum of [_1] tokens.', 8192)
+            if $ENV{JEV_JA_ERROR} eq 'limit_only';
         MT::Plugin::Jev::fail('OpenAI embedding input has [_1] tokens; the maximum is [_2].', 9000, 8192);
     }
     [1, (0) x 3071];
@@ -91,6 +93,13 @@ is scalar(() = $out =~ /generated/g), 1, 'only missing record regenerated';
 is $status, 1, 'translated API error stops CLI';
 unlike $err, qr/Wide character/, 'Japanese error produces no encoding warning';
 like decode('UTF-8', $err), qr/9000トークン.*8192トークン/, 'Japanese token error is valid UTF-8';
+{
+    local $ENV{JEV_JA_ERROR} = 'limit_only';
+    ($status, $out, $err) = cli('--blog-id', $site->id, '--type', 'entry', '--force');
+}
+is $status, 1, 'context limit without input count stops CLI after retries';
+unlike $err, qr/Wide character/, 'limit-only Japanese error produces no encoding warning';
+like decode('UTF-8', $err), qr/上限の8192トークンを超えています/, 'known context limit translated without input count';
 ($status, $out, $err) = cli('--type', 'asset');
 ok $status, 'unsupported type rejected';
 ($status, $out, $err) = cli('--help');

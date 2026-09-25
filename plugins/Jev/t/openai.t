@@ -101,6 +101,48 @@ subtest 'only indexing input-length errors retry with shorter document values' =
     }
 };
 
+subtest 'live context-length error without input token count can be shortened' => sub {
+    # Observed from text-embedding-3-large on 2026-09-25.
+    my $too_long = {error => {type => 'invalid_request_error',
+        message => "Invalid 'input': maximum context length is 8192 tokens."}};
+    my $input = JSON::PP->new->canonical->encode([
+        {name => 'text', value => '長い本文😀' x 4000}, {name => 'title', value => '残すタイトル'},
+    ]);
+    my @ratios;
+    my $shorten = sub {
+        push @ratios, $_[1];
+        MT::Plugin::Jev::Content->shorten_index_text(@_);
+    };
+    my ($c, $u) = client($too_long, 400);
+    $u->{response} = sub { HTTP::Response->new(@{$u->{requests}} <= 2 ? 400 : 200, 'Response', [],
+        $json->encode(@{$u->{requests}} <= 2 ? $too_long : body())) };
+    is_deeply $c->embed($input, shorten => $shorten), [1, (0) x 3071], 'retry succeeds without input count';
+    is scalar @{$u->{requests}}, 3, 'two failures followed by success';
+    is_deeply \@ratios, [0.5, 0.5], 'each failed input is halved when token count is unknown';
+    my @inputs = map { $json->decode($_->content)->{input} } @{$u->{requests}};
+    is $inputs[0], $input, 'full input sent first';
+    for my $i (1, 2) {
+        cmp_ok length($inputs[$i]), '<', length($inputs[$i - 1]), 'retry makes progress';
+        is(JSON::PP->new->decode($inputs[$i])->[1]{value}, '残すタイトル', 'title preserved');
+    }
+    is $c->token_usage->{requests}, 1, 'only successful embedding contributes usage';
+    ($c, $u) = client($too_long, 400);
+    my $error = caught(sub { $c->embed($input, shorten => $shorten) });
+    is scalar @{$u->{requests}}, 4, 'same three-retry bound without input count';
+    is $error->{phrase}, 'OpenAI embedding input exceeds the maximum of [_1] tokens.', 'clear error on exhaustion';
+    is_deeply $error->{params}, [8192], 'only the known limit is reported';
+    ($c, $u) = client($too_long, 400);
+    $error = caught(sub { $c->embed($input) });
+    is scalar @{$u->{requests}}, 1, 'search query is not shortened';
+    is_deeply $error->{params}, [8192], 'query error does not invent an input count';
+    for my $status (401, 429, 500) {
+        ($c, $u) = client($too_long, $status);
+        $error = caught(sub { $c->embed($input, shorten => sub { die 'Must not shorten unrelated errors' }) });
+        is $error->{phrase}, 'OpenAI returned HTTP [_1].', 'only HTTP 400 permits shortening';
+        is scalar @{$u->{requests}}, 1, 'other HTTP failures are not retried';
+    }
+};
+
 ($client, $ua) = client(body());
 like ''.caught(sub { $client->embed(' ') }), qr/Enter text/, 'empty input rejected';
 is scalar @{$ua->{requests}}, 0, 'empty input makes no call';

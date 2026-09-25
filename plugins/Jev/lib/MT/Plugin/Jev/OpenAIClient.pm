@@ -49,9 +49,9 @@ sub embed {
         last if $response->is_success;
         my ($limit, $tokens) = $response->code == 400 ? _context_tokens($data) : ();
         if ($limit && $args{shorten} && $attempt < MAX_SHORTEN_RETRIES) {
-            # Character/token ratios are approximate. Leave headroom and
-            # retry only the documented input-length error, never every 400.
-            my $ratio = 0.97 * $limit / $tokens;
+            # Some context-length errors report only the limit. Halve in
+            # that case; otherwise use the token ratio with headroom.
+            my $ratio = defined $tokens ? 0.97 * $limit / $tokens : 0.5;
             $ratio = 0.95 if $ratio > 0.95;
             my $shorter = $args{shorten}->($text, $ratio);
             if (defined $shorter && length($shorter) < length($text)) {
@@ -60,6 +60,8 @@ sub embed {
             }
         }
         MT::Plugin::Jev::fail('OpenAI embedding input has [_1] tokens; the maximum is [_2].', $tokens, $limit)
+            if defined $tokens;
+        MT::Plugin::Jev::fail('OpenAI embedding input exceeds the maximum of [_1] tokens.', $limit)
             if $limit;
         MT::Plugin::Jev::fail('OpenAI returned HTTP [_1].', $response->code);
     }
@@ -89,8 +91,11 @@ sub _context_tokens {
     return unless ref $data eq 'HASH' && ref $data->{error} eq 'HASH';
     my $message = $data->{error}{message};
     return unless defined $message && !ref $message
-        && $message =~ /\bmaximum context length is ([1-9][0-9]{0,8}) tokens\b.*?\brequested ([1-9][0-9]{0,8}) tokens\b/s;
-    return $2 > $1 ? (0 + $1, 0 + $2) : ();
+        && $message =~ /\bmaximum context length is ([1-9][0-9]{0,8}) tokens\b/;
+    my $limit = 0 + $1;
+    my ($tokens) = $message =~ /\brequested ([1-9][0-9]{0,8}) tokens\b/;
+    return if defined $tokens && $tokens <= $limit;
+    return ($limit, defined $tokens ? 0 + $tokens : undef);
 }
 
 sub usage { $_[0]{usage} }
