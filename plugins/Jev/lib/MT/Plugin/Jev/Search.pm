@@ -6,6 +6,7 @@ use Time::HiRes qw(time);
 use MT::Plugin::Jev;
 use MT::Plugin::Jev::Client;
 use MT::Plugin::Jev::Content;
+use MT::Plugin::Jev::DecisionsEvaluator;
 use MT::Plugin::Jev::Embedding;
 use MT::Plugin::Jev::OpenAIClient;
 use MT::Plugin::Jev::OpenAIEvaluator;
@@ -15,7 +16,10 @@ use JSON::PP ();
 sub run {
     my ($class, $app, $config, $type, $condition, $original) = @_;
     require MT::CMS::Search;
-    my $client = $config->{jev_evaluator} eq 'openai'
+    my $client = $config->{jev_evaluator} eq 'decisions'
+        ? MT::Plugin::Jev::DecisionsEvaluator->new(api_key => $config->{openai_api_key},
+            concurrency => $config->{jev_concurrency})
+        : $config->{jev_evaluator} eq 'openai'
         ? MT::Plugin::Jev::OpenAIEvaluator->new(api_key => $config->{openai_api_key},
             model => $config->{openai_evaluation_model}, concurrency => $config->{jev_concurrency})
         : MT::Plugin::Jev::Client->new(api_key => $config->{jev_api_key}, model => $config->{jev_model},
@@ -48,7 +52,7 @@ sub _log_usage {
         object_type => $type,
         embedding => {provider => 'OpenAI', model => MT::Plugin::Jev::OpenAIClient::MODEL(), %$embedding},
         evaluation => {provider => $client->provider,
-            model => $config->{jev_evaluator} eq 'openai' ? $config->{openai_evaluation_model} : $config->{jev_model},
+            model => $client->model,
             %$evaluation},
         total => $total->as_hash,
     };

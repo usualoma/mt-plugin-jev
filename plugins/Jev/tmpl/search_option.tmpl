@@ -10,10 +10,10 @@
 <script src="<mt:var name="static_uri" escape="html">plugins/Jev/search.js" defer></script>
 </mt:setvarblock>
 <li id="jev-search-hint" class="small mt-2"<mt:unless name="is_jev"> hidden</mt:unless>>
-  <mt:if name="jev_evaluator" eq="openai">
-  <__trans phrase="Evaluates the [_1] most similar indexed documents. Search conditions and candidate content are sent to OpenAI." params="<mt:var name="jev_candidate_limit" escape="html">">
-  <mt:else>
+  <mt:if name="jev_evaluator" eq="jev">
   <__trans phrase="Evaluates the [_1] most similar indexed documents. Search conditions are sent to OpenAI; candidate content is sent to TypeSafe." params="<mt:var name="jev_candidate_limit" escape="html">">
+  <mt:else>
+  <__trans phrase="Evaluates the [_1] most similar indexed documents. Search conditions and candidate content are sent to OpenAI." params="<mt:var name="jev_candidate_limit" escape="html">">
   </mt:if>
 </li>
 </__trans_section>

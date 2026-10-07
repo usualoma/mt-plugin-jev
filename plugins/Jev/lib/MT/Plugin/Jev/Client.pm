@@ -20,6 +20,7 @@ use constant MAX_PAIR_BYTES => 24000;
 use constant MAX_REQUEST_BYTES => 48000;
 
 sub provider { 'Jev' }
+sub model { $_[0]->{model} }
 sub endpoint { ENDPOINT }
 sub request_timeout { REQUEST_TIMEOUT }
 sub search_timeout { SEARCH_TIMEOUT }

@@ -172,19 +172,22 @@ subtest 'errors discard partial results and restore standard search' => sub {
     $plugin->set_config_value('jev_api_key', 'test-key', 'system');
 };
 
-subtest 'OpenAI evaluator uses its key and model, and renders the selected destination' => sub {
-    my $evaluator = Test::MockModule->new('MT::Plugin::Jev::OpenAIEvaluator');
+for my $provider (qw(openai decisions)) {
+subtest "$provider evaluator uses its key and model, and renders the selected destination" => sub {
+    my $evaluator = Test::MockModule->new($provider eq 'decisions'
+        ? 'MT::Plugin::Jev::DecisionsEvaluator' : 'MT::Plugin::Jev::OpenAIEvaluator');
     my $calls = 0;
     $evaluator->redefine(evaluate_batches => sub {
         my ($self, %args) = @_;
         $calls++;
         is $self->{api_key}, 'openai-test', 'embedding key shared for evaluation';
-        is $self->{model}, 'gpt-4.1-mini', 'chosen OpenAI model used';
+        is $self->model, $provider eq 'decisions' ? 'gpt-6-luna' : 'gpt-4.1-mini', 'correct API model used';
         is $self->{concurrency}, 5, 'evaluation concurrency shared';
         cmp_ok $args{deadline} - Time::HiRes::time(), '>', 100, 'OpenAI receives longer search deadline';
+        ok !(grep { @$_ > 2 } @{$args{batches}}), 'configured batch size respected';
         return {map { $_->{id} => {noul => $wanted{$_->{id}} // 0.1, score => 3} } map { @$_ } @{$args{batches}}};
     });
-    $plugin->set_config_value({jev_evaluator => 'openai', openai_evaluation_model => 'gpt-4.1-mini', jev_api_key => ''}, 'system');
+    $plugin->set_config_value({jev_evaluator => $provider, openai_evaluation_model => 'gpt-4.1-mini', jev_api_key => ''}, 'system');
     request();
     ok !$app->generic_error, 'OpenAI search works without TypeSafe key';
     is $calls, 1, 'OpenAI evaluator called';
@@ -199,7 +202,7 @@ subtest 'OpenAI evaluator uses its key and model, and renders the selected desti
     $plugin->set_config_value('openai_api_key', 'openai-test', 'system');
     $evaluator->redefine(evaluate_batches => sub { $_[0]->invalid_answer });
     request();
-    like $app->generic_error, qr/OpenAI returned an invalid or incomplete/, 'OpenAI failure identified';
+    like $app->generic_error, qr/OpenAI(?: Decisions)? returned an invalid or incomplete/, 'OpenAI failure identified';
     unlike $app->content, qr/>Weather</, 'failure does not expose partial results';
     is scalar @sent, 0, 'OpenAI failure never falls back to Jev';
     $plugin->set_config_value({jev_evaluator => 'jev', jev_api_key => 'test-key'}, 'system');
@@ -208,6 +211,7 @@ subtest 'OpenAI evaluator uses its key and model, and renders the selected desti
     ok scalar @sent, 'Jev called again';
     like $app->wq_find('#jev-search-hint')->text, qr/candidate content is sent to TypeSafe/, 'TypeSafe destination restored';
 };
+}
 
 subtest 'permissions are checked before content leaves MT' => sub {
     my $writer = MT::Test::Permission->make_author(name => 'jev_writer');

@@ -123,6 +123,14 @@ subtest 'evaluation provider and model persist without changing keys' => sub {
     $app->get_ok({__mode => 'cfg_plugins'});
     is $app->wq_find('#jev_evaluator option[selected]')->attr('value'), 'openai', 'OpenAI remains selected';
     is $app->wq_find('#openai_evaluation_model')->attr('value'), 'gpt-4.1-mini', 'custom model rendered';
+    $app->post_form_ok(settings_form_id(), {jev_evaluator => 'decisions'});
+    ok !$app->generic_error, 'Decisions selection saved';
+    MT->request('plugin_config.Jev', undef);
+    is MT::Plugin::Jev::config()->{jev_evaluator}, 'decisions', 'Decisions provider persisted';
+    is MT::Plugin::Jev::config()->{openai_evaluation_model}, 'gpt-4.1-mini', 'Responses model retained';
+    $app->get_ok({__mode => 'cfg_plugins'});
+    is $app->wq_find('#jev_evaluator option[selected]')->attr('value'), 'decisions', 'Decisions remains selected';
+    like $app->content, qr/Decisions API uses gpt-6-luna/, 'fixed Decisions model explained';
     $app->post_form_ok(settings_form_id(), {jev_evaluator => 'jev'});
     MT->request('plugin_config.Jev', undef);
     is MT::Plugin::Jev::config()->{jev_evaluator}, 'jev', 'can switch back to Jev';

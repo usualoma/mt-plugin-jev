@@ -28,6 +28,12 @@ $http->redefine(request => sub {
             $data = {answers => {map { ($_ . '_match' => {type => 'noul', noul => $matches ? 0.9 : 0.1},
                 $_ . '_score' => {type => 'score', score => 3}) } keys %{$body->{state}{documents}}},
                 usage => {input_tokens => 100, output_tokens => 20}};
+        } elsif ($request->uri eq 'https://api.openai.com/v1/decisions') {
+            my $input = JSON::PP->new->decode($body->{input});
+            $data = {answers => [map {
+                +{name => $_ . '_match', type => 'predicate', probability => $matches ? 0.9 : 0.1},
+                +{name => $_ . '_score', type => 'score', score => 3.25}
+            } keys %{$input->{documents}}], usage => {input_tokens => 100}};
         } else {
             die 'Unexpected endpoint' unless $request->uri eq 'https://api.openai.com/v1/responses';
             my $input = JSON::PP->new->decode($body->{input});
@@ -66,7 +72,7 @@ search();
 ok !$app->generic_error, 'default search succeeds';
 is scalar @{logs()}, 0, 'OFF by default creates no usage log';
 $plugin->set_config_value('jev_log_usage', 1, 'system');
-for my $provider (qw(jev openai)) {
+for my $provider (qw(jev openai decisions)) {
     $plugin->set_config_value('jev_evaluator', $provider, 'system');
     for my $concurrency (1, 5) {
         $plugin->set_config_value('jev_concurrency', $concurrency, 'system');
@@ -84,13 +90,19 @@ for my $provider (qw(jev openai)) {
         is $record->{embedding}{requests}, 1, 'one embedding request';
         is $record->{evaluation}{requests}, 3, 'all evaluation batches counted';
         is $record->{evaluation}{input_tokens}, 300, 'all evaluation input tokens added';
-        is $record->{evaluation}{provider}, $provider eq 'jev' ? 'Jev' : 'OpenAI', 'provider identified';
+        is $record->{evaluation}{provider}, $provider eq 'jev' ? 'Jev'
+            : $provider eq 'decisions' ? 'OpenAI Decisions' : 'OpenAI', 'provider identified';
         is $record->{total}{input_tokens}, 317, 'embedding and evaluation input combined';
         if ($provider eq 'openai') {
             is $record->{evaluation}{model}, 'gpt-5.4-mini', 'evaluation model recorded';
             is $record->{evaluation}{output_tokens}, 36, 'output summed across batches';
             is $record->{evaluation}{cached_input_tokens}, 192, 'cached input summed across batches';
             is $record->{total}{total_tokens}, 353, 'cached input not counted twice';
+        } elsif ($provider eq 'decisions') {
+            is $record->{evaluation}{model}, 'gpt-6-luna', 'Decisions model recorded';
+            ok !defined $record->{evaluation}{output_tokens}, 'unreported output tokens remain null';
+            ok !defined $record->{evaluation}{cached_input_tokens}, 'unreported cache count remains null';
+            ok !defined $record->{total}{total_tokens}, 'missing counts not invented';
         } else {
             is $record->{evaluation}{output_tokens}, 60, 'Jev output summed across batches';
             is $record->{total}{total_tokens}, 377, 'Jev input and output included in total';

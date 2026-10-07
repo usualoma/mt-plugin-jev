@@ -32,8 +32,8 @@ sub validate_concurrency {
 
 sub validate_config {
     my ($config) = @_;
-    fail('Select Jev or OpenAI as the evaluation provider.')
-        unless defined $config->{jev_evaluator} && $config->{jev_evaluator} =~ /\A(?:jev|openai)\z/;
+    fail('Select Jev, OpenAI Responses API or OpenAI Decisions API as the evaluation provider.')
+        unless defined $config->{jev_evaluator} && $config->{jev_evaluator} =~ /\A(?:jev|openai|decisions)\z/;
     fail('Enter a valid OpenAI evaluation model name.')
         unless defined $config->{openai_evaluation_model}
         && $config->{openai_evaluation_model} =~ /\A[a-zA-Z0-9][a-zA-Z0-9._:\/-]{0,127}\z/;

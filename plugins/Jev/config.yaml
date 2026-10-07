@@ -1,7 +1,7 @@
 id: Jev
 key: Jev
 name: Jev
-version: 0.2.5
+version: 0.2.6
 schema_version: 0.01
 object_types:
   jev_embedding: MT::Plugin::Jev::Embedding
@@ -66,10 +66,10 @@ l10n_lexicon:
     'Search entries, pages and content data using natural-language conditions with Jev or OpenAI.': 'JevまたはOpenAIを使い、自然文の条件で記事・ウェブページ・コンテンツデータを検索します。'
     'Evaluation provider': '条件判定・関連度採点に使うAPI'
     'Select the API for matching and relevance scoring. Embeddings always use OpenAI.': '候補の条件判定と関連度採点に使うAPIを選びます。embeddingの生成には常にOpenAIを使います。'
-    'Select Jev or OpenAI as the evaluation provider.': '評価に使うAPIはJevまたはOpenAIを選んでください。'
+    'Select Jev, OpenAI Responses API or OpenAI Decisions API as the evaluation provider.': '評価に使うAPIはJev、OpenAI Responses API、OpenAI Decisions APIのいずれかを選んでください。'
     'Jev model': 'Jevのモデル'
     'OpenAI evaluation model': 'OpenAIの評価用モデル'
-    'Used when OpenAI is selected. Requires Responses API and Structured Outputs support. Uses the OpenAI API key above.': 'OpenAIを選択した場合に使用します。Responses APIとStructured Outputsに対応するモデルを指定してください。上のOpenAI APIキーを共用します。'
+    'Used only for Responses API; requires Structured Outputs support. Decisions API uses gpt-6-luna. Both use the OpenAI API key above.': 'Responses APIでのみ使用します。Structured Outputs対応モデルを指定してください。Decisions APIではgpt-6-lunaを使用します。どちらも上のOpenAI APIキーを共用します。'
     'Enter a valid OpenAI evaluation model name.': '有効なOpenAIの評価用モデル名を入力してください。'
     'Concurrent evaluation requests': '評価の並列数'
     'The evaluation concurrency must be an integer from 1 to 10.': '評価の並列数は1以上10以下の整数にしてください。'

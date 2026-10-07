@@ -1,6 +1,6 @@
 # Jev for Movable Type
 
-A proof of concept for searching entries, pages, and content data in the Movable Type 9 admin interface using natural language. OpenAI embeddings narrow down the candidates, then Jev or OpenAI evaluates how well each candidate matches the conditions and ranks it by relevance. No dedicated vector database is required: vectors are stored in the MT database and compared in Perl.
+A proof of concept for searching entries, pages, and content data in the Movable Type 9 admin interface using natural language. OpenAI embeddings narrow down the candidates, then Jev, OpenAI Responses API, or OpenAI Decisions API evaluates how well each candidate matches the conditions and ranks it by relevance. No dedicated vector database is required: vectors are stored in the MT database and compared in Perl.
 
 ## Installation
 
@@ -35,7 +35,7 @@ Like AI-Assistant, this plugin uses `ExtUtils::MakeMaker` and the Docker Compose
 docker compose run --rm --build builder
 ```
 
-The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.5.tar.gz` and `Jev-0.2.5.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, blog drafts, and build files.
+The builder reads `version` from `plugins/Jev/config.yaml` and creates `Jev-0.2.6.tar.gz` and `Jev-0.2.6.zip` in the repository root. Running it again with the same version rebuilds the archives. After extracting an archive, copy `plugins/Jev`, `mt-static/plugins/Jev`, and `tools/Jev/build-index` to their corresponding locations in MT. The archives contain runtime files and the README, but exclude tests, specifications, blog drafts, and build files.
 
 The builder uses UID and GID `1000` by default. To match the generated files' ownership to your current user on Linux or similar systems, run:
 
@@ -54,19 +54,19 @@ make dist
 make zipdist
 ```
 
-To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.5-dev`; this does not change the version displayed by the plugin.
+To release a new version, update `version` in `config.yaml`. As with AI-Assistant, you can override only the archive version with `perl Makefile.PL --version 0.2.6-dev`; this does not change the version displayed by the plugin.
 
 ## CI and GitHub Releases
 
-The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.5-abc1234`.
+The [build workflow](.github/workflows/build.yml) runs on branch pushes, pull requests, and tags starting with `v`. It uses the same Docker Compose builder as local builds and uploads the ZIP and tar.gz archives as a workflow artifact. Branch and pull request builds append the short commit SHA to the package and plugin version, such as `0.2.6-abc1234`.
 
 Like AI-Assistant, tag builds use [softprops/action-gh-release](https://github.com/softprops/action-gh-release) to create a **draft GitHub Release** with both archives attached. The tag must match `version` in `plugins/Jev/config.yaml`, prefixed with `v`; a mismatch fails the build. Tagged builds keep the configured plugin version unchanged. Only the release job receives `contents: write` permission, using the automatically provided GitHub token.
 
-To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.5`:
+To prepare a release, update the plugin version, commit and push the changes together with the workflow, then push the matching tag. For version `0.2.6`:
 
 ```sh
-git tag v0.2.5
-git push origin v0.2.5
+git tag v0.2.6
+git push origin v0.2.6
 ```
 
 Once the workflow succeeds, review and publish the draft on GitHub's Releases page.
@@ -91,8 +91,8 @@ Natural-language search disables case sensitivity, regular expressions, field se
 
 1. Within the scope the user is allowed to search, collect embeddings that match the current document content.
 2. Embed the search conditions with OpenAI and select the most similar candidates, 50 by default.
-3. The configured provider, Jev or OpenAI, reads all searchable fields of each candidate and evaluates the conditions, including negation. By default, requests contain five documents each, with up to five requests sent concurrently. Concurrency is configurable.
-4. Display candidates whose match probability meets the threshold, ordered by relevance descending, then embedding similarity descending and ID ascending to break ties. Jev uses Noul and Score; OpenAI uses generated match probability and relevance values. The display limit is applied after sorting.
+3. The configured provider reads all searchable fields of each candidate and evaluates the conditions, including negation. By default, requests contain five documents each, with up to five requests sent concurrently. Batch size and concurrency apply to all three providers.
+4. Display candidates whose match probability meets the threshold, ordered by relevance descending, then embedding similarity descending and ID ascending to break ties. Jev uses Noul and Score; Responses API generates match probability and relevance values; Decisions API returns a predicate probability and a score over five ordered levels (0–4). The display limit is applied after sorting.
 
 Search is limited to the selected candidates, so even conditions such as "does not mention" do not guarantee complete coverage. The plugin does not evaluate all documents or fetch additional candidates when too few match. Searching again or changing the display limit makes new API calls.
 
@@ -100,11 +100,11 @@ Search is limited to the selected candidates, so even conditions such as "does n
 
 | Setting | Default | Description |
 | --- | --- | --- |
-| Evaluation provider | `Jev` | `Jev` or `OpenAI`. Embeddings always use OpenAI. |
-| OpenAI API key | Empty | Used for embedding generation and, when OpenAI is selected, evaluation. |
+| Evaluation provider | `Jev` | `Jev (TypeSafe)`, `OpenAI (Responses API)`, or `OpenAI (Decisions API)`. Embeddings always use OpenAI. |
+| OpenAI API key | Empty | Used for embedding generation and evaluation through either OpenAI API. |
 | TypeSafe API key | Empty | Used for Jev's condition matching and relevance scoring. |
 | Jev model | `jev-latest` | Model name used when Jev is selected. |
-| OpenAI evaluation model | `gpt-5.4-mini` | Model name used when OpenAI is selected. Requires Responses API and Structured Outputs support. |
+| OpenAI evaluation model | `gpt-5.4-mini` | Model name for Responses API only. Requires Structured Outputs support. Decisions API uses the fixed model `gpt-6-luna`. |
 | Candidate limit | `50` | 1–500. Total number of documents evaluated per search. |
 | Match threshold | `0.5` | 0–1. Candidates match when the selected provider's match probability is at least this value. |
 | Candidates per request | `5` | 1–50. Documents grouped into one request. Large inputs are split into smaller groups. |
@@ -118,7 +118,9 @@ With **Log search token usage** enabled, `MT->log` records an INFO entry with ca
 
 Logs contain no search text, document content, or API keys. They are associated with the search site (or the system scope) and the searching user. Only completed searches are logged, including searches with no matches. Failed searches, failed HTTP attempts, and embeddings generated while indexing or saving documents are excluded, so these logs are usage diagnostics rather than a complete billing ledger.
 
-Switching the evaluation provider or evaluation model does not require rebuilding the index. OpenAI's match probability is an estimate generated by the model as JSON; it is not guaranteed to have the same probability characteristics or relevance score distribution as Jev's Noul and Score. Check thresholds and search results with the model you use. The default model is [GPT-5.4 Mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini), using [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs) for responses.
+Switching the evaluation provider or evaluation model does not require rebuilding the index. With Responses API, match probability is an estimate generated by the model as JSON. Probability characteristics and relevance score distributions may differ across providers, so check thresholds and search results with the provider you use. The default Responses model is [GPT-5.4 Mini](https://developers.openai.com/api/docs/models/gpt-5.4-mini), using [Structured Outputs](https://developers.openai.com/api/docs/guides/structured-outputs).
+
+To use [Decisions API](https://developers.openai.com/api/docs/guides/decisions), select **OpenAI (Decisions API)** and save the settings. It uses the existing OpenAI key and index. The public beta currently supports only `gpt-6-luna`, so the OpenAI evaluation model field does not change this provider's model. Each request shares the document data across two named questions per article: a `predicate` for the complete search condition and a `score` for relevance. Five articles produce ten questions in one request. Filtering uses `probability`, not `confidence`; sorting uses the returned fractional score. Responses-only settings such as temperature, reasoning effort, and Structured Outputs are not sent. Usage logs identify this provider as `OpenAI Decisions`; token counts absent from the response remain `null`.
 
 For `gpt-5.4-mini` and its dated snapshots, evaluation requests explicitly use `temperature: 0` and `reasoning.effort: none` to reduce sampling variation. These values are fixed in the plugin and do not guarantee identical results across repeated searches. Other model names retain their API defaults; sampling parameters are omitted to avoid sending unsupported settings. See the parameter compatibility section of the [GPT-5.4 guide](https://developers.openai.com/api/docs/guides/gpt-5.4).
 
@@ -131,11 +133,11 @@ Documents include all fields covered by MT's search, with HTML converted to text
 For content data, choice fields include both stored values and display labels, while categories and tags in the same site include IDs and names. References to assets or other content data contribute only IDs to the shared embeddings. Display names of referenced objects that the user is allowed to search are added only when sending candidates to the selected evaluation provider. Documents relevant solely because of a referenced object's display name are not guaranteed to be retrieved by the embedding stage.
 
 - Initial indexing and saves send documents to OpenAI. Search conditions are also embedded through OpenAI. Condition matching and relevance scoring send the search conditions and top candidates to the selected provider, TypeSafe or OpenAI. There is no automatic fallback to another evaluation provider.
-- With Jev selected, the overall search timeout is 45 seconds and the evaluation HTTP timeout is 10 seconds. With OpenAI selected, these limits are 180 and 60 seconds respectively. Embedding generation remains synchronous with a 10-second HTTP timeout.
+- With Jev selected, the overall search timeout is 45 seconds and the evaluation HTTP timeout is 10 seconds. With either OpenAI API selected, these limits are 180 and 60 seconds respectively. Embedding generation remains synchronous with a 10-second HTTP timeout.
 - OpenAI embedding generation accepts up to 8192 tokens per input. When indexing or saving a document, a recognized HTTP 400 context-length error triggers a shorter retry, up to three times within the existing 10-second deadline. When the API reports the input token count, it determines an approximate character reduction with headroom. If the error reports only the context limit, the text is approximately halved on each retry. No tokenizer dependency is added. The longest field values are trimmed from the end first, preserving titles and content-data labels until other values are exhausted. Structured values remain valid JSON. Other API errors are not retried, and search queries are never silently shortened. If the retry limit is reached, or the error cannot be recognized, indexing still stops.
 - Truncation affects only the embedding request. Original documents, full-document freshness hashes, and fields sent for condition matching remain intact. Topics mentioned only in the discarded text may be missed during candidate selection. Existing successful indexes remain valid; rerun `tools/Jev/build-index` without `--force` to skip them and retry missing indexes. The CLI writes UTF-8 diagnostics. By default, recognized length errors report only the input/limit token counts; `--debug` also includes failed response bodies as described above.
-- Jev evaluation request JSON is limited to 24,000 bytes per candidate and 48,000 bytes per request. OpenAI does not use the per-candidate byte limit: batches are split around a 48,000-byte target, and larger single documents are sent alone in full. The configured OpenAI model's actual token limit is enforced by the API; exceeding it still fails the search. Evaluation content is never silently shortened or skipped, since even the end of a document can invalidate an absence condition. Condition matching and relevance scoring share the same document data. OpenAI uses Structured Outputs through the Responses API, with a maximum of 8192 output tokens. Automatic input truncation and response storage are disabled.
-- Both evaluation providers use the existing LWP client, running in parallel through Perl's built-in `fork`, with up to five processes by default. No additional CPAN dependencies are required; the target environment must support `fork`, as Linux does. Concurrency is configurable from 1 to 10, and the actual number of child processes is capped by the number of candidate batches. No child process is created when concurrency is 1 or there is only one batch. HTTPS connections are reused within each process. Simultaneous searches each use their own set of processes; concurrency is not coordinated across searches.
+- Jev evaluation request JSON is limited to 24,000 bytes per candidate and 48,000 bytes per request. Neither OpenAI evaluator uses the per-candidate byte limit: batches are split around a 48,000-byte target, and larger single documents are sent alone in full. The model's actual token limit is enforced by the API; exceeding it still fails the search. Evaluation content is never silently shortened or skipped, since even the end of a document can invalidate an absence condition. Condition matching and relevance scoring share the same document data. The Responses evaluator uses Structured Outputs with a maximum of 8192 output tokens, and disables automatic input truncation and response storage.
+- All evaluation providers use the existing LWP client, running in parallel through Perl's built-in `fork`, with up to five processes by default. No additional CPAN dependencies are required; the target environment must support `fork`, as Linux does. Concurrency is configurable from 1 to 10, and the actual number of child processes is capped by the number of candidate batches. No child process is created when concurrency is 1 or there is only one batch. HTTPS connections are reused within each process. Simultaneous searches each use their own set of processes; concurrency is not coordinated across searches.
 - Document grouping, questions, batch sizes, and token counts are the same as for sequential execution. Parallelism does not increase the normal number of API calls.
 - Each process retries Jev's 429 / 529 responses and OpenAI evaluation's 429 / 5xx responses up to twice. On errors or timeout, remaining child processes are terminated and reaped, and no partial results are returned. Interrupted or refused OpenAI generations, missing answers, and duplicate answers also cause search errors. Embedding generation stops on failure after any permitted shortening retries.
 - API errors, oversized inputs, and timeouts cause the search to fail. Documents with missing or outdated embeddings are excluded from search.
@@ -168,6 +170,12 @@ To check only OpenAI evaluation against the live API, set `OPENAI_API_KEY` and r
 
 ```sh
 prove -v plugins/Jev/xt/openai-evaluation-live.t
+```
+
+To run the same synthetic checks through Decisions API instead (three requests, with multiple articles per request):
+
+```sh
+OPENAI_EVALUATION_API=decisions prove -v plugins/Jev/xt/openai-evaluation-live.t
 ```
 
 ## Design and verification records

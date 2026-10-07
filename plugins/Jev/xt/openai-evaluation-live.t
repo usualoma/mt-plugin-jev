@@ -6,11 +6,16 @@ use lib "$FindBin::Bin/../lib";
 use Test::More;
 use Time::HiRes qw(time);
 use MT::Plugin::Jev::OpenAIEvaluator;
+use MT::Plugin::Jev::DecisionsEvaluator;
 
-plan skip_all => 'Set OPENAI_API_KEY for three OpenAI Responses requests using synthetic documents.'
+plan skip_all => 'Set OPENAI_API_KEY for three OpenAI evaluation requests using synthetic documents.'
     unless $ENV{OPENAI_API_KEY};
-my $model = $ENV{OPENAI_EVALUATION_MODEL} || 'gpt-5.4-mini';
-my $client = MT::Plugin::Jev::OpenAIEvaluator->new(api_key => $ENV{OPENAI_API_KEY}, model => $model);
+my $api = $ENV{OPENAI_EVALUATION_API} || 'responses';
+die 'OPENAI_EVALUATION_API must be responses or decisions' unless $api =~ /\A(?:responses|decisions)\z/;
+my $client = $api eq 'decisions'
+    ? MT::Plugin::Jev::DecisionsEvaluator->new(api_key => $ENV{OPENAI_API_KEY})
+    : MT::Plugin::Jev::OpenAIEvaluator->new(api_key => $ENV{OPENAI_API_KEY},
+        model => $ENV{OPENAI_EVALUATION_MODEL} || 'gpt-5.4-mini');
 my @documents = (
     {id => 'difficulty', fields => [{name => 'text', value => '国産クラウドへサイトを移行した。DNSの設定方法が分からず作業が一日止まり、とても困った。'}]},
     {id => 'smooth', fields => [{name => 'text', value => '国産クラウドへのサイト移行は順調に完了した。作業中も移行後も問題はなく、困ったことは一切ない。'}]},
@@ -25,8 +30,8 @@ my $batch_seconds = time - $start;
 $start = time;
 $result = $client->evaluate_batches(condition => '国産クラウドのサイト移行について書かれている記事',
     batches => [[@documents[0..1]], [$documents[2]]]);
-is scalar keys %$result, 3, 'parallel Responses requests complete';
+is scalar keys %$result, 3, "parallel $api requests complete";
 ok !(grep { $_->{noul} < 0.5 } values %$result), 'positive topic matches all documents';
 diag sprintf 'model=%s input_tokens=%d single_batch_seconds=%.3f parallel_seconds=%.3f',
-    $model, $client->input_tokens, $batch_seconds, time - $start;
+    $client->model, $client->input_tokens, $batch_seconds, time - $start;
 done_testing;
